@@ -1,6 +1,6 @@
 import { ConnectionOptions, createConnection } from "typeorm";
 import * as ts from "typescript";
-import * as yn from "yn";
+import yn from "yn";
 import * as path from "path"
 import IGenerationOptions, {
     getDefaultGenerationOptions

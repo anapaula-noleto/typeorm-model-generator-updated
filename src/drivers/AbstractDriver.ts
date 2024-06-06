@@ -329,6 +329,7 @@ export default abstract class AbstractDriver {
                     const retVal: Required<JoinColumnOptions> = {
                         name: v,
                         referencedColumnName: relationTmp.relatedColumns[idx],
+                        foreignKeyConstraintName: "",
                     };
                     return retVal;
                 }),

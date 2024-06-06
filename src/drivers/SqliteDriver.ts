@@ -430,7 +430,8 @@ export default class SqliteDriver extends AbstractDriver {
         let ret: T[] = [];
         const promise = new Promise<boolean>((resolve, reject) => {
             this.db.serialize(() => {
-                this.db.all(sql, [], (err, row) => {
+                this.db.all(sql, [], (err, row: T[]) => {
+                    // Explicitly type 'row' as 'T[]'
                     if (!err) {
                         ret = row;
                         resolve(true);

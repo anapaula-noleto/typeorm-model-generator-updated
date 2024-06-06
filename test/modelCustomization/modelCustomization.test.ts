@@ -103,7 +103,10 @@ describe("Model customization phase", async () => {
                     fieldName: "authorId",
                     relatedField: "Post",
                     joinColumnOptions: [
-                        { name: "authorId", referencedColumnName: "id" }
+                        {
+                          name: "authorId", referencedColumnName: "id",
+                          foreignKeyConstraintName: ""
+                        }
                     ],
                     relatedTable: "PostAuthor",
                     relationType: "ManyToOne"
