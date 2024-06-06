@@ -1,5 +1,5 @@
 {
-  "name": "typeorm-model-generator",
+  "name": "typeorm-model-generator-updated",
   "version": "0.4.6",
   "description": "Generates models for TypeORM from existing databases.",
   "bin": "bin/typeorm-model-generator",
@@ -22,9 +22,9 @@
   "author": "Kononnable",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Kononnable/typeorm-model-generator/issues"
+    "url": "https://github.com/anapaula-noleto/typeorm-model-generator-updateds"
   },
-  "homepage": "https://github.com/Kononnable/typeorm-model-generator#readme",
+  "homepage": "https://github.com/anapaula-noleto/typeorm-model-generator-updated#readme",
   "dependencies": {
     "change-case": "^4.1.2",
     "fs-extra": "^9.1.0",
