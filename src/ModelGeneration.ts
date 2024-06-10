@@ -8,6 +8,7 @@ import IConnectionOptions from "./IConnectionOptions";
 import IGenerationOptions, { eolConverter } from "./IGenerationOptions";
 import { Entity } from "./models/Entity";
 import { Relation } from "./models/Relation";
+import pluralize = require("pluralize");
 
 const prettierOptions: Prettier.Options = {
     parser: "typescript",
@@ -22,6 +23,10 @@ export default function modelGenerationPhase(
     createHandlebarsHelpers(generationOptions);
 
     const resultPath = generationOptions.resultsPath;
+    const modelPath = generationOptions.modelsPath;
+    if (!fs.existsSync(modelPath)) {
+        console.error(`ModelPath '${modelPath}' does not exist`);
+    }
     if (!fs.existsSync(resultPath)) {
         fs.mkdirSync(resultPath);
     }
@@ -51,10 +56,10 @@ function generateModels(
     const entityTemplatePath = path.resolve(
         __dirname,
         "templates",
-        "entity.mst"
+        "entity-schema.mst"
     );
     const entityTemplate = fs.readFileSync(entityTemplatePath, "utf-8");
-    const entityCompliedTemplate = Handlebars.compile(entityTemplate, {
+    const entityCompiledTemplate = Handlebars.compile(entityTemplate, {
         noEscape: true,
     });
     databaseModel.forEach((element) => {
@@ -79,7 +84,7 @@ function generateModels(
             entitiesPath,
             `${casedFileName}.ts`
         );
-        const rendered = entityCompliedTemplate(element);
+        const rendered = entityCompiledTemplate(element);
         const withImportStatements = removeUnusedImports(
             EOL !== eolConverter[generationOptions.convertEol]
                 ? rendered.replace(
@@ -139,20 +144,38 @@ function createIndexFile(
 }
 
 function removeUnusedImports(rendered: string) {
-    const openBracketIndex = rendered.indexOf("{") + 1;
-    const closeBracketIndex = rendered.indexOf("}");
+    const importStartIndex = rendered.indexOf("import");
+    const openBracketIndex = rendered.indexOf("{", importStartIndex) + 1;
+    const closeBracketIndex = rendered.indexOf("}", openBracketIndex);
+
+    if (openBracketIndex === 0 || closeBracketIndex === -1) {
+        return rendered;
+    }
+
     const imports = rendered
         .substring(openBracketIndex, closeBracketIndex)
-        .split(",");
+        .split(",")
+        .map((v) => v.trim()) // Trim any whitespace around imports
+        .filter((v) => v); // Remove any empty strings
+
     const restOfEntityDefinition = rendered.substring(closeBracketIndex);
     const distinctImports = imports.filter(
         (v) =>
             restOfEntityDefinition.indexOf(`@${v}(`) !== -1 ||
             (v === "BaseEntity" && restOfEntityDefinition.indexOf(v) !== -1)
     );
+
+    // If no distinct imports remain, remove the entire import line
+    if (distinctImports.length === 0) {
+        const importEndIndex = rendered.indexOf(";", closeBracketIndex) + 1;
+        return `${rendered.substring(0, importStartIndex)}${rendered
+            .substring(importEndIndex)
+            .trim()}`;
+    }
+
     return `${rendered.substring(0, openBracketIndex)}${distinctImports.join(
         ","
-    )}${restOfEntityDefinition}`;
+    )}${rendered.substring(closeBracketIndex)}`;
 }
 
 function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
@@ -161,7 +184,23 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
         const withoutQuotes = json.replace(/"([^(")"]+)":/g, "$1:");
         return withoutQuotes.slice(1, withoutQuotes.length - 1);
     });
+    Handlebars.registerHelper("jsonStringify", function (context) {
+        return JSON.stringify(context);
+    });
+    Handlebars.registerHelper("toparamCase", (str) => {
+        return changeCase.paramCase(str);
+    });
+    Handlebars.registerHelper("singularize", (str) => {
+        return pluralize.singular(str);
+    });
+    Handlebars.registerHelper("toLowerCase", (str) => {
+        return str.toLowerCase();
+    });
+    Handlebars.registerHelper("getModelPath", () => {
+        return generationOptions.modelsPath;
+    });
     Handlebars.registerHelper("toEntityName", (str) => {
+        str = pluralize.singular(str);
         let retStr = "";
         switch (generationOptions.convertCaseEntity) {
             case "camel":
@@ -179,30 +218,19 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
         return retStr;
     });
     Handlebars.registerHelper("toFileName", (str) => {
-        let retStr = "";
-        switch (generationOptions.convertCaseFile) {
-            case "camel":
-                retStr = changeCase.camelCase(str);
-                break;
-            case "param":
-                retStr = changeCase.paramCase(str);
-                break;
-            case "pascal":
-                retStr = changeCase.pascalCase(str);
-                break;
-            case "none":
-                retStr = str;
-                break;
-            default:
-                throw new Error("Unknown case style");
-        }
-        return retStr;
+        return pluralize.singular(changeCase.camelCase(str));
     });
     Handlebars.registerHelper("printPropertyVisibility", () =>
         generationOptions.propertyVisibility !== "none"
             ? `${generationOptions.propertyVisibility} `
             : ""
     );
+
+    Handlebars.registerHelper(
+        "firstLetterToUppercase",
+        (str) => str.charAt(0).toUpperCase() + str.slice(1)
+    );
+
     Handlebars.registerHelper("toPropertyName", (str) => {
         let retStr = "";
         switch (generationOptions.convertCaseProperty) {

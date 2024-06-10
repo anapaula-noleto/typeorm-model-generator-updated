@@ -1,0 +1,42 @@
+{{#*inline "Import"}}
+import {{localImport (toEntityName entityName)}} from '{{getModelPath}}/{{toFileName entityName}}'
+{{/inline}}
+{{#*inline "Column"}}
+{{toPropertyName tscName}}: {
+    type: {{firstLetterToUppercase tscType}},
+    {{json options}},
+    {{#primary}}primary: true,{{/primary}}
+    {{#generated}}generated: true,{{/generated}}
+    {{#nullable}}nullable: true,{{/nullable}}
+},
+{{/inline}}
+{{#*inline "EntitySchemaType"}}
+{{toEntityName tscName}}{{#if relations}} {{#relations}} & { {{toPropertyName relatedTable}}: {{toEntityName relatedTable}} }{{/relations}}{{/if}}
+{{/inline}}
+{{#*inline "Schema"}}
+export const {{toPropertyName tscName}}Schema = new EntitySchema<{{> EntitySchemaType}}>({
+    target: {{toEntityName tscName}},
+    name: "{{sqlName}}",
+    tableName: "{{sqlName}}",
+    columns: {
+        {{#columns}}{{> Column}}{{/columns~}}
+    },
+    relations: {
+        {{#relations}}
+        {{toPropertyName fieldName}}: {
+            target: "{{relatedTable}}",
+            type: "{{toparamCase relationType}}",
+            {{#if joinTableOptions}}
+            joinTable: {{jsonStringify joinTableOptions}},
+            {{/if}}
+        },
+        {{/relations}}
+    }
+});
+
+{{/inline}}
+import { Entity } from "typeorm";
+import { EntitySchema } from "typeorm";
+import { {{toEntityName tscName}} } from "{{getModelPath}}/{{toFileName tscName}}";
+{{#fileImports}}{{> Import}}{{/fileImports}}
+{{> Schema}}
