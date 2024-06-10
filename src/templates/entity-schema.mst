@@ -1,5 +1,5 @@
 {{#*inline "Import"}}
-import {{localImport (toEntityName entityName)}} from '../../../domain/models/{{toFileName entityName}}'
+import {{localImport (toEntityName entityName)}} from '{{getModelPath}}/{{toFileName entityName}}'
 {{/inline}}
 {{#*inline "Column"}}
 {{toPropertyName tscName}}: {
@@ -37,6 +37,6 @@ export const {{toPropertyName tscName}}Schema = new EntitySchema<{{> EntitySchem
 {{/inline}}
 import { Entity } from "typeorm";
 import { EntitySchema } from "typeorm";
-import { {{toEntityName tscName}} } from "../../../domain/models/{{toFileName tscName}}";
+import { {{toEntityName tscName}} } from "{{getModelPath}}/{{toFileName tscName}}";
 {{#fileImports}}{{> Import}}{{/fileImports}}
 {{> Schema}}

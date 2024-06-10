@@ -23,6 +23,10 @@ export default function modelGenerationPhase(
     createHandlebarsHelpers(generationOptions);
 
     const resultPath = generationOptions.resultsPath;
+    const modelPath = generationOptions.modelsPath;
+    if (!fs.existsSync(modelPath)) {
+        console.error(`ModelPath '${modelPath}' does not exist`);
+    }
     if (!fs.existsSync(resultPath)) {
         fs.mkdirSync(resultPath);
     }
@@ -55,7 +59,7 @@ function generateModels(
         "entity-schema.mst"
     );
     const entityTemplate = fs.readFileSync(entityTemplatePath, "utf-8");
-    const entityCompliedTemplate = Handlebars.compile(entityTemplate, {
+    const entityCompiledTemplate = Handlebars.compile(entityTemplate, {
         noEscape: true,
     });
     databaseModel.forEach((element) => {
@@ -80,7 +84,7 @@ function generateModels(
             entitiesPath,
             `${casedFileName}.ts`
         );
-        const rendered = entityCompliedTemplate(element);
+        const rendered = entityCompiledTemplate(element);
         const withImportStatements = removeUnusedImports(
             EOL !== eolConverter[generationOptions.convertEol]
                 ? rendered.replace(
@@ -191,6 +195,9 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
     });
     Handlebars.registerHelper("toLowerCase", (str) => {
         return str.toLowerCase();
+    });
+    Handlebars.registerHelper("getModelPath", () => {
+        return generationOptions.modelsPath;
     });
     Handlebars.registerHelper("toEntityName", (str) => {
         str = pluralize.singular(str);

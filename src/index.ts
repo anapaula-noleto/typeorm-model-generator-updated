@@ -182,6 +182,12 @@ function checkYargsParameters(options: options): options {
             default: options.generationOptions.resultsPath,
             describe: "Where to place generated models",
         },
+        m: {
+            alias: "model",
+            default: options.generationOptions.modelsPath,
+            describe:
+                "Where to place search for models to use in entyty schema",
+        },
         s: {
             alias: "schema",
             string: true,
@@ -343,6 +349,7 @@ function checkYargsParameters(options: options): options {
     options.generationOptions.relationIds = argv.relationIds;
     options.generationOptions.skipSchema = argv.skipSchema;
     options.generationOptions.resultsPath = argv.o;
+    options.generationOptions.modelsPath = argv.m;
     options.generationOptions.pluralizeNames = !argv.disablePluralization;
     options.generationOptions.strictMode =
         argv.strictMode as IGenerationOptions["strictMode"];
