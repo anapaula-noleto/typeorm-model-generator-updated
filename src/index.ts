@@ -41,7 +41,7 @@ async function CliLogic() {
         options.generationOptions
     );
     console.info(
-        `[${new Date().toLocaleTimeString()}] Typeorm model classes created.`
+        `[${new Date().toLocaleTimeString()}] Typeorm schema classes created.`
     );
 }
 function validateConfig(options: options): options {

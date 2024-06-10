@@ -37,7 +37,7 @@ export function getDefaultGenerationOptions(): IGenerationOptions {
         modelsPath: path.relative(process.cwd(), "models"),
         pluralizeNames: true,
         noConfigs: false,
-        convertCaseFile: "pascal",
+        convertCaseFile: "camel",
         convertCaseEntity: "pascal",
         convertCaseProperty: "camel",
         convertEol: EOL === "\n" ? "LF" : "CRLF",

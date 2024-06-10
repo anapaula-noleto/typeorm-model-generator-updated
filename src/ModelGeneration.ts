@@ -66,13 +66,19 @@ function generateModels(
         let casedFileName = "";
         switch (generationOptions.convertCaseFile) {
             case "camel":
-                casedFileName = changeCase.camelCase(element.fileName);
+                casedFileName = changeCase.camelCase(
+                    element.fileName + "Schema"
+                );
                 break;
             case "param":
-                casedFileName = changeCase.paramCase(element.fileName);
+                casedFileName = changeCase.paramCase(
+                    element.fileName + "Schema"
+                );
                 break;
             case "pascal":
-                casedFileName = changeCase.pascalCase(element.fileName);
+                casedFileName = changeCase.pascalCase(
+                    element.fileName + "Schema"
+                );
                 break;
             case "none":
                 casedFileName = element.fileName;
