@@ -33,7 +33,7 @@ async function CliLogic() {
     options = validateConfig(options);
     const driver = createDriver(options.connectionOptions.databaseType);
     console.log(
-        `[${new Date().toLocaleTimeString()}] Starting creation of model classes.`
+        `[${new Date().toLocaleTimeString()}] Starting creation of entity schema classes.`
     );
     await createModelFromDatabase(
         driver,

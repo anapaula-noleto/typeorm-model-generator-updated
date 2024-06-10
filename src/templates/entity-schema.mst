@@ -1,5 +1,5 @@
 {{#*inline "Import"}}
-import {{localImport (toEntityName entityName)}} from '{{getModelPath}}/{{toFileName entityName}}'
+import {{localImport (toEntityName entityName)}} from '{{getModelPath}}/{{toFileName entityName}}.js'
 {{/inline}}
 {{#*inline "Column"}}
 {{toPropertyName tscName}}: {
@@ -11,7 +11,7 @@ import {{localImport (toEntityName entityName)}} from '{{getModelPath}}/{{toFile
 },
 {{/inline}}
 {{#*inline "EntitySchemaType"}}
-{{toEntityName tscName}}{{#if relations}} {{#relations}} & { {{toPropertyName relatedTable}}: {{toEntityName relatedTable}} }{{/relations}}{{/if}}
+{{toEntityName tscName}}{{#if relations}} {{#relations}} & { {{toPropertyName fieldName}}: {{toEntityName relatedTable}} }{{/relations}}{{/if}}
 {{/inline}}
 {{#*inline "Schema"}}
 export const {{toPropertyName tscName}}Schema = new EntitySchema<{{> EntitySchemaType}}>({
@@ -37,6 +37,6 @@ export const {{toPropertyName tscName}}Schema = new EntitySchema<{{> EntitySchem
 {{/inline}}
 import { Entity } from "typeorm";
 import { EntitySchema } from "typeorm";
-import { {{toEntityName tscName}} } from "{{getModelPath}}/{{toFileName tscName}}";
+import { {{toEntityName tscName}} } from "{{getModelPath}}/{{toFileName tscName}}.js";
 {{#fileImports}}{{> Import}}{{/fileImports}}
 {{> Schema}}
