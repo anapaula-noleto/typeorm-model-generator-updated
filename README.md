@@ -1,12 +1,13 @@
 # typeorm-model-generator
 
-[![npm version](https://badge.fury.io/js/typeorm-model-generator.svg)](https://badge.fury.io/js/typeorm-model-generator)
-[![codecov](https://codecov.io/gh/Kononnable/typeorm-model-generator/branch/master/graph/badge.svg)](https://codecov.io/gh/Kononnable/typeorm-model-generator)
+[![npm version](https://badge.fury.io/js/typeorm-model-generator-updated.svg)](https://badge.fury.io/js/typeorm-model-generator-updated)
+<!-- [![codecov](https://codecov.io/gh/Kononnable/typeorm-model-generator-updated/branch/master/graph/badge.svg)](https://codecov.io/gh/Kononnable/typeorm-model-generator-updated) -->
 
 ***
-## :warning: This project is in a maintenance phase. See [#329](https://github.com/Kononnable/typeorm-model-generator/issues/329) for details.
+## warning: This project is an update of [typeorm-model-generator-updated](https://www.npmjs.com/package/typeorm-model-generator) .
 ***
-Generates models for TypeORM from existing databases.
+Generates [Entity Schemas](https://orkhan.gitbook.io/typeorm/docs/separating-entity-definition), [Models](https://orkhan.gitbook.io/typeorm/readme#create-a-model) and [Entities (models with TypeORM Annotations)](https://orkhan.gitbook.io/typeorm/docs/entities#what-is-entity) for TypeORM from existing databases.
+
 Supported db engines:
 * Microsoft SQL Server
 * PostgreSQL
@@ -18,7 +19,7 @@ Supported db engines:
 
 ## Installation
 ### Versions
-Typeorm-model-generator comes with preinstalled driver for each supported db(except for oracle). However if you want to use it as a dev-dependency you may want to install your db driver manually to reduce dependency footprint, reduce time spent in the CI. In such case you can use version without preinstalled db drivers - `npm i typeorm-model-generator@no-engines`.  
+Typeorm-model-generator-updated comes with preinstalled driver for each supported db(except for oracle). However if you want to use it as a dev-dependency you may want to install your db driver manually to reduce dependency footprint, reduce time spent in the CI. In such case you can use version without preinstalled db drivers - `npm i typeorm-model-generator@no-engines`.  
 ### Global module
 To install module globally simply type `npm i -g typeorm-model-generator` in your console.
 ### Npx way
@@ -55,7 +56,13 @@ Options:
   -s, --schema           Schema name to create model from. Only for mssql
                          and postgres. You can pass multiple values
                          separated by comma eg. -s scheme1,scheme2,scheme3
+  -m                     The models path where the models will be created
+                            [default: "./models"]
   --ssl                                               [boolean] [default: false]
+  --noConfig            Do not create tsconfig.json and ormconfig.json files
+                                                      [boolean] [default: false]
+  --tables            Tables to create models from. You can pass multiple
+                        values separated by comma eg. --tables table1,table2,table3
 ```
 ### Examples
 
