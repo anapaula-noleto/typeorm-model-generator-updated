@@ -3,17 +3,12 @@ import * as Prettier from "prettier";
 import * as changeCase from "change-case";
 import * as fs from "fs";
 import * as path from "path";
-import { EOL } from "os";
 import IConnectionOptions from "./IConnectionOptions";
-import IGenerationOptions, { eolConverter } from "./IGenerationOptions";
+import IGenerationOptions from "./IGenerationOptions";
 import { Entity } from "./models/Entity";
 import { Relation } from "./models/Relation";
 import pluralize = require("pluralize");
-
-const prettierOptions: Prettier.Options = {
-    parser: "typescript",
-    endOfLine: "auto",
-};
+import { FileProcessor } from "../test/utils/FileProcessor";
 
 export default function GenerationPhase(
     connectionOptions: IConnectionOptions,
@@ -51,88 +46,34 @@ export default function GenerationPhase(
         fs.mkdirSync(modelsPath);
     }
 
-    // console.log(databaseModel[0])
-    generateSchemas(databaseModel, generationOptions, entitySchemasPath);
-    generateModels(databaseModel, generationOptions, modelsPath);
+    generateFile(
+        databaseModel,
+        generationOptions,
+        entitySchemasPath,
+        "entity-schema.mst",
+        "schema"
+    );
+    generateFile(databaseModel, generationOptions, modelsPath, "model.mst");
 }
 
-function generateSchemas(
+function generateFile(
     databaseModel: Entity[],
     generationOptions: IGenerationOptions,
-    entitiesPath: string
+    modelsPath: string,
+    templateName: string,
+    fileNameEndsWith?: string
 ) {
-    const entityTemplatePath = path.resolve(
-        __dirname,
-        "templates",
-        "entity-schema.mst"
-    );
-    const entityTemplate = fs.readFileSync(entityTemplatePath, "utf-8");
-    const entityCompiledTemplate = Handlebars.compile(entityTemplate, {
+    const templatePath = path.resolve(__dirname, "templates", templateName);
+    const template = fs.readFileSync(templatePath, "utf-8");
+    const compiledTemplate = Handlebars.compile(template, {
         noEscape: true,
     });
+
     databaseModel.forEach((element) => {
-        const casedFileName = setFileNameWithCase(
-            generationOptions,
-            `${element.fileName}Schema`
-        );
-        const resultFilePath = path.resolve(
-            entitiesPath,
-            `${casedFileName}.ts`
-        );
-
-        if (
-            generationOptions.generateMissingTables &&
-            fileAlreadyCreated(resultFilePath)
-        ) {
-            return;
-        }
-        const rendered = entityCompiledTemplate(element);
-
-        const withImportStatements = removeUnusedImports(
-            EOL !== eolConverter[generationOptions.convertEol]
-                ? rendered.replace(
-                      /(\r\n|\n|\r)/gm,
-                      eolConverter[generationOptions.convertEol]
-                  )
-                : rendered
-        );
-        let formatted = "";
-        try {
-            formatted = Prettier.format(withImportStatements, prettierOptions);
-        } catch (error) {
-            console.error(
-                "There were some problems with model generation for table: ",
-                element.sqlName
-            );
-            console.error(error);
-            formatted = withImportStatements;
-        }
-        fs.writeFileSync(resultFilePath, formatted, {
-            encoding: "utf-8",
-            flag: "w",
-        });
-    });
-}
-
-function generateModels(
-    databaseModel: Entity[],
-    generationOptions: IGenerationOptions,
-    modelsPath: string
-) {
-    const entityTemplatePath = path.resolve(
-        __dirname,
-        "templates",
-        "model.mst"
-    );
-    const entityTemplate = fs.readFileSync(entityTemplatePath, "utf-8");
-    const entityCompiledTemplate = Handlebars.compile(entityTemplate, {
-        noEscape: true,
-    });
-    databaseModel.forEach((element) => {
-        const casedFileName = setFileNameWithCase(
-            generationOptions,
-            element.fileName
-        );
+        const fileName = fileNameEndsWith
+            ? `${element.fileName}-${fileNameEndsWith}`
+            : element.fileName;
+        const casedFileName = setFileNameWithCase(generationOptions, fileName);
         const resultFilePath = path.resolve(modelsPath, `${casedFileName}.ts`);
 
         if (
@@ -142,27 +83,15 @@ function generateModels(
             return;
         }
 
-        const rendered = entityCompiledTemplate(element);
-        const withImportStatements = removeUnusedImports(
-            EOL !== eolConverter[generationOptions.convertEol]
-                ? rendered.replace(
-                      /(\r\n|\n|\r)/gm,
-                      eolConverter[generationOptions.convertEol]
-                  )
-                : rendered
-        );
-        let formatted = "";
-        try {
-            formatted = Prettier.format(withImportStatements, prettierOptions);
-        } catch (error) {
-            console.error(
-                "There were some problems with model generation for table: ",
-                element.sqlName
-            );
-            console.error(error);
-            formatted = withImportStatements;
-        }
-        fs.writeFileSync(resultFilePath, formatted, {
+        const renderedText = compiledTemplate(element);
+
+        const finalFileText = new FileProcessor(renderedText, generationOptions)
+            .removeUnusedImports()
+            .convertEOL()
+            .prettierFormat()
+            .getRenderedFile();
+
+        fs.writeFileSync(resultFilePath, finalFileText, {
             encoding: "utf-8",
             flag: "w",
         });
@@ -208,7 +137,9 @@ function createIndexFile(
         noEscape: true,
     });
     const rendered = compliedTemplate({ entities: databaseModel });
-    const formatted = Prettier.format(rendered, prettierOptions);
+    const formatted = new FileProcessor(rendered, generationOptions)
+        .prettierFormat()
+        .getRenderedFile();
     let fileName = "index";
     switch (generationOptions.convertCaseFile) {
         case "camel":
@@ -227,41 +158,6 @@ function createIndexFile(
         encoding: "utf-8",
         flag: "w",
     });
-}
-
-function removeUnusedImports(rendered: string) {
-    const importStartIndex = rendered.indexOf("import");
-    const openBracketIndex = rendered.indexOf("{", importStartIndex) + 1;
-    const closeBracketIndex = rendered.indexOf("}", openBracketIndex);
-
-    if (openBracketIndex === 0 || closeBracketIndex === -1) {
-        return rendered;
-    }
-
-    const imports = rendered
-        .substring(openBracketIndex, closeBracketIndex)
-        .split(",")
-        .map((v) => v.trim()) // Trim any whitespace around imports
-        .filter((v) => v); // Remove any empty strings
-
-    const restOfEntityDefinition = rendered.substring(closeBracketIndex);
-    let distinctImports = imports.filter(
-        (v) =>
-            restOfEntityDefinition.indexOf(`@${v}(`) !== -1 ||
-            (v === "BaseEntity" && restOfEntityDefinition.indexOf(v) !== -1)
-    );
-
-    // If no distinct imports remain, remove the entire import line
-    if (distinctImports.length === 0) {
-        const importEndIndex = rendered.indexOf(";", closeBracketIndex) + 1;
-        return `${rendered.substring(0, importStartIndex)}${rendered
-            .substring(importEndIndex)
-            .trim()}`;
-    }
-
-    return `${rendered.substring(0, openBracketIndex)}${distinctImports.join(
-        ","
-    )}${rendered.substring(closeBracketIndex)}`;
 }
 
 function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
