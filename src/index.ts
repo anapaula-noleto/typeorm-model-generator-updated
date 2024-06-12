@@ -179,7 +179,7 @@ function checkYargsParameters(options: options): options {
         },
         o: {
             alias: "output",
-            default: options.generationOptions.resultsPath,
+            default: options.generationOptions.schemasPath,
             describe: "Where to place generated models",
         },
         m: {
@@ -304,6 +304,11 @@ function checkYargsParameters(options: options): options {
             default: options.generationOptions.exportType === "default",
             describe: "Generate index file",
         },
+        generateMissingTables: {
+            boolean: true,
+            default: options.generationOptions.generateMissingTables,
+            describe: "Generate models for missing tables only",
+        },
     });
 
     options.connectionOptions.databaseNames = argv.d.split(",");
@@ -348,7 +353,9 @@ function checkYargsParameters(options: options): options {
         argv.pv as IGenerationOptions["propertyVisibility"];
     options.generationOptions.relationIds = argv.relationIds;
     options.generationOptions.skipSchema = argv.skipSchema;
-    options.generationOptions.resultsPath = argv.o;
+    options.generationOptions.generateMissingTables =
+        argv.generateMissingTables;
+    options.generationOptions.schemasPath = argv.o;
     options.generationOptions.modelsPath = argv.m;
     options.generationOptions.pluralizeNames = !argv.disablePluralization;
     options.generationOptions.strictMode =
@@ -526,10 +533,10 @@ async function useInquirer(options: options): Promise<options> {
 
     await optionsMapper[ignoreSpecyficTables]();
 
-    options.generationOptions.resultsPath = (
+    options.generationOptions.schemasPath = (
         await inquirer.prompt([
             {
-                default: options.generationOptions.resultsPath,
+                default: options.generationOptions.schemasPath,
                 message: "Path where generated models should be stored:",
                 name: "output",
                 type: "input",

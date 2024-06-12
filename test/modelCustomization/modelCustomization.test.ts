@@ -122,15 +122,15 @@ describe("Model customization phase", async () => {
         }
     ];
 
-    const resultsPath = path.resolve(process.cwd(), `output`);
+    const schemasPath = path.resolve(process.cwd(), `output`);
     const generateGenerationOptions = () => {
         const generationOptions = getDefaultGenerationOptions();
-        generationOptions.resultsPath = resultsPath;
+        generationOptions.schemasPath = schemasPath;
         return generationOptions;
     };
     const clearGenerationDir = () => {
-        fs.ensureDirSync(resultsPath);
-        fs.emptyDirSync(resultsPath);
+        fs.ensureDirSync(schemasPath);
+        fs.emptyDirSync(schemasPath);
     };
     describe("case-file", () => {
         it("PascalCase", () => {
@@ -149,11 +149,11 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 customizedModel
             );
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             const files = fs.readdirSync(filesGenPath).sort();
             expect(files[0]).to.equal("Post.ts");
             expect(files[1]).to.equal("PostAuthor.ts");
-            compileGeneratedModel(generationOptions.resultsPath, [""]);
+            compileGeneratedModel(generationOptions.schemasPath, [""]);
         });
         it("camelCase", () => {
             const data = generateSampleData();
@@ -171,11 +171,11 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 customizedModel
             );
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             const files = fs.readdirSync(filesGenPath).sort();
             expect(files[0]).to.equal("post.ts");
             expect(files[1]).to.equal("postAuthor.ts");
-            compileGeneratedModel(generationOptions.resultsPath, [""]);
+            compileGeneratedModel(generationOptions.schemasPath, [""]);
         });
     });
     describe("case-entity", () => {
@@ -195,7 +195,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 customizedModel
             );
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             const postContent = fs
                 .readFileSync(path.resolve(filesGenPath, "Post.ts"))
                 .toString();
@@ -205,7 +205,7 @@ describe("Model customization phase", async () => {
             expect(postContent).to.contain("class Post {");
             expect(postAuthorContent).to.contain("class PostAuthor {");
 
-            compileGeneratedModel(generationOptions.resultsPath, [""]);
+            compileGeneratedModel(generationOptions.schemasPath, [""]);
         });
         it("camelCase", () => {
             const data = generateSampleData();
@@ -223,7 +223,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 customizedModel
             );
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             const postContent = fs
                 .readFileSync(path.resolve(filesGenPath, "Post.ts"))
                 .toString();
@@ -233,7 +233,7 @@ describe("Model customization phase", async () => {
             expect(postContent).to.contain("class post {");
             expect(postAuthorContent).to.contain("class postAuthor {");
 
-            compileGeneratedModel(generationOptions.resultsPath, [""], false);
+            compileGeneratedModel(generationOptions.schemasPath, [""], false);
         });
     });
     describe("case-property", async () => {
@@ -253,7 +253,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 customizedModel
             );
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             const postContent = fs
                 .readFileSync(path.resolve(filesGenPath, "Post.ts"))
                 .toString();
@@ -264,7 +264,7 @@ describe("Model customization phase", async () => {
             expect(postAuthorContent).to.contain("Posts: Post[];");
             expect(postAuthorContent).to.contain("ComplexName: string;");
 
-            compileGeneratedModel(generationOptions.resultsPath, [""], false);
+            compileGeneratedModel(generationOptions.schemasPath, [""], false);
         });
         it("camelCase", () => {
             const data = generateSampleData();
@@ -282,7 +282,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 customizedModel
             );
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             const postContent = fs
                 .readFileSync(path.resolve(filesGenPath, "Post.ts"))
                 .toString();
@@ -293,7 +293,7 @@ describe("Model customization phase", async () => {
             expect(postAuthorContent).to.contain("posts: Post[];");
             expect(postAuthorContent).to.contain("complexName: string;");
 
-            compileGeneratedModel(generationOptions.resultsPath, [""]);
+            compileGeneratedModel(generationOptions.schemasPath, [""]);
         });
         it("snake_case", () => {
             const data = generateSampleData();
@@ -311,7 +311,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 customizedModel
             );
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             const postContent = fs
                 .readFileSync(path.resolve(filesGenPath, "Post.ts"))
                 .toString();
@@ -322,7 +322,7 @@ describe("Model customization phase", async () => {
             expect(postAuthorContent).to.contain("posts: Post[];");
             expect(postAuthorContent).to.contain("complex_name: string;");
 
-            compileGeneratedModel(generationOptions.resultsPath, [""],false);
+            compileGeneratedModel(generationOptions.schemasPath, [""],false);
         });
     });
     describe("EOL", async () => {
@@ -341,13 +341,13 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 customizedModel
             );
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             const postContent = fs
                 .readFileSync(path.resolve(filesGenPath, "Post.ts"))
                 .toString();
             expect(postContent).to.not.contain("\r\n");
             expect(postContent).to.contain("\n");
-            compileGeneratedModel(generationOptions.resultsPath, [""]);
+            compileGeneratedModel(generationOptions.schemasPath, [""]);
         });
         it("CRLF", () => {
             const data = generateSampleData();
@@ -364,12 +364,12 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 customizedModel
             );
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             const postContent = fs
                 .readFileSync(path.resolve(filesGenPath, "Post.ts"))
                 .toString();
             expect(postContent).to.contain("\r\n");
-            compileGeneratedModel(generationOptions.resultsPath, [""]);
+            compileGeneratedModel(generationOptions.schemasPath, [""]);
         });
     });
     describe("property-visibility", () => {
@@ -389,7 +389,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 customizedModel
             );
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             const postContent = fs
                 .readFileSync(path.resolve(filesGenPath, "Post.ts"))
                 .toString();
@@ -399,7 +399,7 @@ describe("Model customization phase", async () => {
             expect(postContent).to.have.string("  public title: string");
             expect(postAuthorContent).to.have.string("  public posts: Post[];");
 
-            compileGeneratedModel(generationOptions.resultsPath, [""]);
+            compileGeneratedModel(generationOptions.schemasPath, [""]);
         });
         it("none", () => {
             const data = generateSampleData();
@@ -417,7 +417,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 customizedModel
             );
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             const postContent = fs
                 .readFileSync(path.resolve(filesGenPath, "Post.ts"))
                 .toString();
@@ -427,7 +427,7 @@ describe("Model customization phase", async () => {
             expect(postContent).to.have.string("  title: string");
             expect(postAuthorContent).to.have.string("  posts: Post[];");
 
-            compileGeneratedModel(generationOptions.resultsPath, [""]);
+            compileGeneratedModel(generationOptions.schemasPath, [""]);
         });
     });
     it("lazy", async () => {
@@ -447,7 +447,7 @@ describe("Model customization phase", async () => {
             generationOptions,
             customizedModel
         );
-        const filesGenPath = path.resolve(resultsPath, "entities");
+        const filesGenPath = path.resolve(schemasPath, "entities");
         const postContent = fs
             .readFileSync(path.resolve(filesGenPath, "Post.ts"))
             .toString();
@@ -459,7 +459,7 @@ describe("Model customization phase", async () => {
         expect(postAuthorContent).to.have.string("lazy: true");
         expect(postAuthorContent).to.have.string("Promise<Post[]>");
 
-        compileGeneratedModel(generationOptions.resultsPath, [""]);
+        compileGeneratedModel(generationOptions.schemasPath, [""]);
     });
     it("activeRecord", async () => {
         const data = generateSampleData();
@@ -477,7 +477,7 @@ describe("Model customization phase", async () => {
             generationOptions,
             customizedModel
         );
-        const filesGenPath = path.resolve(resultsPath, "entities");
+        const filesGenPath = path.resolve(schemasPath, "entities");
         const postContent = fs
             .readFileSync(path.resolve(filesGenPath, "Post.ts"))
             .toString();
@@ -491,7 +491,7 @@ describe("Model customization phase", async () => {
             `export class PostAuthor extends BaseEntity `
         );
 
-        compileGeneratedModel(generationOptions.resultsPath, [""]);
+        compileGeneratedModel(generationOptions.schemasPath, [""]);
     });
     it("skipSchema", async () => {
         const data = generateSampleData();
@@ -509,7 +509,7 @@ describe("Model customization phase", async () => {
             generationOptions,
             customizedModel
         );
-        const filesGenPath = path.resolve(resultsPath, "entities");
+        const filesGenPath = path.resolve(schemasPath, "entities");
         const postContent = fs
             .readFileSync(path.resolve(filesGenPath, "Post.ts"))
             .toString();
@@ -519,7 +519,7 @@ describe("Model customization phase", async () => {
         expect(postContent).to.have.string(`@Entity("Post")`);
         expect(postAuthorContent).to.have.string(`@Entity("PostAuthor")`);
 
-        compileGeneratedModel(generationOptions.resultsPath, [""]);
+        compileGeneratedModel(generationOptions.schemasPath, [""]);
     });
     it("generateConstructor", async () => {
         const data = generateSampleData();
@@ -537,7 +537,7 @@ describe("Model customization phase", async () => {
             generationOptions,
             customizedModel
         );
-        const filesGenPath = path.resolve(resultsPath, "entities");
+        const filesGenPath = path.resolve(schemasPath, "entities");
         const postContent = fs
             .readFileSync(path.resolve(filesGenPath, "Post.ts"))
             .toString();
@@ -551,7 +551,7 @@ describe("Model customization phase", async () => {
         );
         expect(postAuthorContent).to.have.string(`Object.assign(this, init);`);
 
-        compileGeneratedModel(generationOptions.resultsPath, [""]);
+        compileGeneratedModel(generationOptions.schemasPath, [""]);
     });
     it("generateConstructor with activeRecord", async () => {
         const data = generateSampleData();
@@ -570,7 +570,7 @@ describe("Model customization phase", async () => {
             generationOptions,
             customizedModel
         );
-        const filesGenPath = path.resolve(resultsPath, "entities");
+        const filesGenPath = path.resolve(schemasPath, "entities");
         const postContent = fs
             .readFileSync(path.resolve(filesGenPath, "Post.ts"))
             .toString();
@@ -586,7 +586,7 @@ describe("Model customization phase", async () => {
         expect(postAuthorContent).to.have.string(`super();`);
         expect(postAuthorContent).to.have.string(`Object.assign(this, init);`);
 
-        compileGeneratedModel(generationOptions.resultsPath, [""]);
+        compileGeneratedModel(generationOptions.schemasPath, [""]);
     });
     describe("strictMode", () => {
         it("!", async () => {
@@ -605,7 +605,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 customizedModel
             );
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             const postContent = fs
                 .readFileSync(path.resolve(filesGenPath, "Post.ts"))
                 .toString();
@@ -620,7 +620,7 @@ describe("Model customization phase", async () => {
             expect(postAuthorContent).to.have.string(`name!: string;`);
             expect(postAuthorContent).to.have.string(`posts!: Post[];`);
 
-            compileGeneratedModel(generationOptions.resultsPath, [""]);
+            compileGeneratedModel(generationOptions.schemasPath, [""]);
         });
         it("?", async () => {
             const data = generateSampleData();
@@ -638,7 +638,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 customizedModel
             );
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             const postContent = fs
                 .readFileSync(path.resolve(filesGenPath, "Post.ts"))
                 .toString();
@@ -653,7 +653,7 @@ describe("Model customization phase", async () => {
             expect(postAuthorContent).to.have.string(`name?: string;`);
             expect(postAuthorContent).to.have.string(`posts?: Post[];`);
 
-            compileGeneratedModel(generationOptions.resultsPath, [""]);
+            compileGeneratedModel(generationOptions.schemasPath, [""]);
         });
     });
     it("naming strategy", async () => {
@@ -677,7 +677,7 @@ describe("Model customization phase", async () => {
             generationOptions,
             customizedModel
         );
-        const filesGenPath = path.resolve(resultsPath, "entities");
+        const filesGenPath = path.resolve(schemasPath, "entities");
         const postContent = fs
             .readFileSync(path.resolve(filesGenPath, "Post_B_D.ts"))
             .toString();
@@ -698,7 +698,7 @@ describe("Model customization phase", async () => {
             `import { Post_B } from "./Post_B_D";`
         );
 
-        compileGeneratedModel(generationOptions.resultsPath, [""], false);
+        compileGeneratedModel(generationOptions.schemasPath, [""], false);
     });
     describe("pluralization", () => {
         it("enabled", async () => {
@@ -717,12 +717,12 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 customizedModel
             );
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             const postAuthorContent = fs
                 .readFileSync(path.resolve(filesGenPath, "PostAuthor.ts"))
                 .toString();
             expect(postAuthorContent).to.contain("posts: Post[];");
-            compileGeneratedModel(generationOptions.resultsPath, [""]);
+            compileGeneratedModel(generationOptions.schemasPath, [""]);
         });
         it("disabled", async () => {
             const data = generateSampleData();
@@ -740,12 +740,12 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 customizedModel
             );
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             const postAuthorContent = fs
                 .readFileSync(path.resolve(filesGenPath, "PostAuthor.ts"))
                 .toString();
             expect(postAuthorContent).to.contain("post: Post[];");
-            compileGeneratedModel(generationOptions.resultsPath, [""]);
+            compileGeneratedModel(generationOptions.schemasPath, [""]);
         });
     });
     describe("index file generation", () => {
@@ -765,7 +765,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 customizedModel
             );
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             const indexFileContent = fs
                 .readFileSync(path.resolve(filesGenPath, "Index.ts"))
                 .toString();
@@ -774,7 +774,7 @@ describe("Model customization phase", async () => {
             );
             expect(indexFileContent).to.contain('import { Post } from "./Post');
             expect(indexFileContent).to.contain("export { PostAuthor, Post }");
-            compileGeneratedModel(generationOptions.resultsPath, [""]);
+            compileGeneratedModel(generationOptions.schemasPath, [""]);
         });
         it("default export", async () => {
             const data = generateSampleData();
@@ -793,7 +793,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 customizedModel
             );
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             const indexFileContent = fs
                 .readFileSync(path.resolve(filesGenPath, "Index.ts"))
                 .toString();
@@ -802,7 +802,7 @@ describe("Model customization phase", async () => {
             );
             expect(indexFileContent).to.contain('import Post from "./Post');
             expect(indexFileContent).to.contain("export { PostAuthor, Post }");
-            compileGeneratedModel(generationOptions.resultsPath, [""]);
+            compileGeneratedModel(generationOptions.schemasPath, [""]);
         });
         it("disabled", async () => {
             const data = generateSampleData();
@@ -820,11 +820,11 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 customizedModel
             );
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             expect(
                 fs.existsSync(path.resolve(filesGenPath, "Index.ts"))
             ).to.equal(false);
-            compileGeneratedModel(generationOptions.resultsPath, [""]);
+            compileGeneratedModel(generationOptions.schemasPath, [""]);
         });
     });
 });

@@ -100,12 +100,12 @@ async function runTestsFromPath(
 }
 
 function createOutputDirs(dbDrivers: string[]) {
-    const resultsPath = path.resolve(process.cwd(), `output`);
-    if (!fs.existsSync(resultsPath)) {
-        fs.mkdirSync(resultsPath);
+    const schemasPath = path.resolve(process.cwd(), `output`);
+    if (!fs.existsSync(schemasPath)) {
+        fs.mkdirSync(schemasPath);
     }
     dbDrivers.forEach(dbDriver => {
-        const newDirPath = path.resolve(resultsPath, dbDriver);
+        const newDirPath = path.resolve(schemasPath, dbDriver);
         if (!fs.existsSync(newDirPath)) {
             fs.mkdirSync(newDirPath);
         }
@@ -124,7 +124,7 @@ function runTestForMultipleDrivers(
                 generationOptions,
                 driver,
                 connectionOptions,
-                resultsPath,
+                schemasPath,
                 filesOrgPathTS
             } = await prepareTestRuns(testPartialPath, testName, dbDriver);
         let dbModel: Entity[] = [];
@@ -163,13 +163,13 @@ function runTestForMultipleDrivers(
                 driver.defaultValues
             );
             GenerationPhase(connectionOptions, generationOptions, dbModel);
-                    const filesGenPath = path.resolve(resultsPath, "entities");
+                    const filesGenPath = path.resolve(schemasPath, "entities");
             compareGeneratedFiles(filesOrgPathTS, filesGenPath);
             return {
                 dbModel,
                 generationOptions,
                 connectionOptions,
-                resultsPath,
+                schemasPath,
                 filesOrgPathTS,
                 dbDriver
             };
@@ -226,7 +226,7 @@ async function runTest(
                 generationOptions,
                 driver,
                 connectionOptions,
-                resultsPath,
+                schemasPath,
                 filesOrgPathTS
             } = await prepareTestRuns(testPartialPath, dbDriver, dbDriver);
             let dbModel = await dataCollectionPhase(
@@ -240,13 +240,13 @@ async function runTest(
                 driver.defaultValues
             );
             GenerationPhase(connectionOptions, generationOptions, dbModel);
-            const filesGenPath = path.resolve(resultsPath, "entities");
+            const filesGenPath = path.resolve(schemasPath, "entities");
             compareGeneratedFiles(filesOrgPathTS, filesGenPath);
             return {
                 dbModel,
                 generationOptions,
                 connectionOptions,
-                resultsPath,
+                schemasPath,
                 filesOrgPathTS,
                 dbDriver
             };
@@ -392,10 +392,10 @@ async function prepareTestRuns(
         "entity"
     );
 
-    const resultsPath = path.resolve(process.cwd(), `output`, dbDriver);
-    fs.removeSync(resultsPath);
+    const schemasPath = path.resolve(process.cwd(), `output`, dbDriver);
+    fs.removeSync(schemasPath);
     const driver = createDriver(dbDriver);
-    const generationOptions = GTU.getGenerationOptions(resultsPath);
+    const generationOptions = GTU.getGenerationOptions(schemasPath);
     switch (testName) {
         case "65":
             generationOptions.relationIds = true;
@@ -437,7 +437,7 @@ async function prepareTestRuns(
         generationOptions,
         driver,
         connectionOptions,
-        resultsPath,
+        schemasPath,
         filesOrgPathTS
     };
 }

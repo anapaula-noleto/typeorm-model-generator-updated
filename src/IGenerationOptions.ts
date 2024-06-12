@@ -6,7 +6,7 @@ import path = require("path");
 
 // eslint-disable-next-line @typescript-eslint/interface-name-prefix
 export default interface IGenerationOptions {
-    resultsPath: string;
+    schemasPath: string;
     modelsPath: string;
     pluralizeNames: boolean;
     noConfigs: boolean;
@@ -24,6 +24,7 @@ export default interface IGenerationOptions {
     skipSchema: boolean;
     indexFile: boolean;
     exportType: "named" | "default";
+    generateMissingTables: boolean;
 }
 
 export const eolConverter = {
@@ -33,7 +34,7 @@ export const eolConverter = {
 
 export function getDefaultGenerationOptions(): IGenerationOptions {
     const generationOptions: IGenerationOptions = {
-        resultsPath: path.resolve(process.cwd(), "output"),
+        schemasPath: path.resolve(process.cwd(), "output"),
         modelsPath: path.relative(process.cwd(), "models"),
         pluralizeNames: true,
         noConfigs: false,
@@ -51,6 +52,7 @@ export function getDefaultGenerationOptions(): IGenerationOptions {
         skipSchema: false,
         indexFile: false,
         exportType: "named",
+        generateMissingTables: false,
     };
     return generationOptions;
 }

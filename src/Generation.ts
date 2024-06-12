@@ -9,7 +9,6 @@ import IGenerationOptions, { eolConverter } from "./IGenerationOptions";
 import { Entity } from "./models/Entity";
 import { Relation } from "./models/Relation";
 import pluralize = require("pluralize");
-import { string } from "yargs";
 
 const prettierOptions: Prettier.Options = {
     parser: "typescript",
@@ -23,22 +22,22 @@ export default function GenerationPhase(
 ): void {
     createHandlebarsHelpers(generationOptions);
 
-    const resultPath = generationOptions.resultsPath;
+    const schemaPath = generationOptions.schemasPath;
     const modelPath = generationOptions.modelsPath;
     if (!fs.existsSync(modelPath)) {
         console.error(`ModelPath '${modelPath}' does not exist`);
     }
-    if (!fs.existsSync(resultPath)) {
-        fs.mkdirSync(resultPath);
+    if (!fs.existsSync(schemaPath)) {
+        fs.mkdirSync(schemaPath);
     }
-    let entitySchemasPath = resultPath;
+    let entitySchemasPath = schemaPath;
     if (!generationOptions.noConfigs) {
-        const tsconfigPath = path.resolve(resultPath, "tsconfig.json");
-        const typeormConfigPath = path.resolve(resultPath, "ormconfig.json");
+        const tsconfigPath = path.resolve(schemaPath, "tsconfig.json");
+        const typeormConfigPath = path.resolve(schemaPath, "ormconfig.json");
 
         createTsConfigFile(tsconfigPath);
         createTypeOrmConfig(typeormConfigPath, connectionOptions);
-        entitySchemasPath = path.resolve(resultPath, "./entities");
+        entitySchemasPath = path.resolve(schemaPath, "./entities");
         if (!fs.existsSync(entitySchemasPath)) {
             fs.mkdirSync(entitySchemasPath);
         }
@@ -52,8 +51,7 @@ export default function GenerationPhase(
         fs.mkdirSync(modelsPath);
     }
 
-    // console.log(databaseModel[0].relations)
-    // console.log(databaseModel[0].fileImports)
+    // console.log(databaseModel[0])
     generateSchemas(databaseModel, generationOptions, entitySchemasPath);
     generateModels(databaseModel, generationOptions, modelsPath);
 }
@@ -73,33 +71,21 @@ function generateSchemas(
         noEscape: true,
     });
     databaseModel.forEach((element) => {
-        let casedFileName = "";
-        switch (generationOptions.convertCaseFile) {
-            case "camel":
-                casedFileName = changeCase.camelCase(
-                    element.fileName + "Schema"
-                );
-                break;
-            case "param":
-                casedFileName = changeCase.paramCase(
-                    element.fileName + "Schema"
-                );
-                break;
-            case "pascal":
-                casedFileName = changeCase.pascalCase(
-                    element.fileName + "Schema"
-                );
-                break;
-            case "none":
-                casedFileName = element.fileName;
-                break;
-            default:
-                throw new Error("Unknown case style");
-        }
+        const casedFileName = setFileNameWithCase(
+            generationOptions,
+            `${element.fileName}Schema`
+        );
         const resultFilePath = path.resolve(
             entitiesPath,
             `${casedFileName}.ts`
         );
+
+        if (
+            generationOptions.generateMissingTables &&
+            fileAlreadyCreated(resultFilePath)
+        ) {
+            return;
+        }
         const rendered = entityCompiledTemplate(element);
 
         const withImportStatements = removeUnusedImports(
@@ -143,24 +129,19 @@ function generateModels(
         noEscape: true,
     });
     databaseModel.forEach((element) => {
-        let casedFileName = "";
-        switch (generationOptions.convertCaseFile) {
-            case "camel":
-                casedFileName = changeCase.camelCase(element.fileName);
-                break;
-            case "param":
-                casedFileName = changeCase.paramCase(element.fileName);
-                break;
-            case "pascal":
-                casedFileName = changeCase.pascalCase(element.fileName);
-                break;
-            case "none":
-                casedFileName = element.fileName;
-                break;
-            default:
-                throw new Error("Unknown case style");
-        }
+        const casedFileName = setFileNameWithCase(
+            generationOptions,
+            element.fileName
+        );
         const resultFilePath = path.resolve(modelsPath, `${casedFileName}.ts`);
+
+        if (
+            generationOptions.generateMissingTables &&
+            fileAlreadyCreated(resultFilePath)
+        ) {
+            return;
+        }
+
         const rendered = entityCompiledTemplate(element);
         const withImportStatements = removeUnusedImports(
             EOL !== eolConverter[generationOptions.convertEol]
@@ -186,6 +167,34 @@ function generateModels(
             flag: "w",
         });
     });
+}
+
+function setFileNameWithCase(
+    generationOptions: IGenerationOptions,
+    fileName: string
+): string {
+    let casedFileName = "";
+    switch (generationOptions.convertCaseFile) {
+        case "camel":
+            casedFileName = changeCase.camelCase(fileName);
+            break;
+        case "param":
+            casedFileName = changeCase.paramCase(fileName);
+            break;
+        case "pascal":
+            casedFileName = changeCase.pascalCase(fileName);
+            break;
+        case "none":
+            casedFileName = fileName;
+            break;
+        default:
+            throw new Error("Unknown case style");
+    }
+    return casedFileName;
+}
+
+function fileAlreadyCreated(filePath: string) {
+    return fs.existsSync(filePath);
 }
 
 function createIndexFile(

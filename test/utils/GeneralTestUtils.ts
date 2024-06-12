@@ -13,9 +13,9 @@ import OracleDriver from "../../src/drivers/OracleDriver";
 import MysqlDriver from "../../src/drivers/MysqlDriver";
 import { assertUnreachable } from "../../src/Utils";
 
-export function getGenerationOptions(resultsPath: string): IGenerationOptions {
+export function getGenerationOptions(schemasPath: string): IGenerationOptions {
     const retVal = getDefaultGenerationOptions();
-    retVal.resultsPath = resultsPath;
+    retVal.schemasPath = schemasPath;
     return retVal;
 }
 
