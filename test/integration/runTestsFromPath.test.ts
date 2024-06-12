@@ -13,7 +13,7 @@ import * as GTU from "../utils/GeneralTestUtils";
 import { Entity } from "../../src/models/Entity";
 import IConnectionOptions from "../../src/IConnectionOptions";
 import modelCustomizationPhase from "../../src/ModelCustomization";
-import modelGenerationPhase from "../../src/ModelGeneration";
+import GenerationPhase from "../../src/Generation";
 import AbstractDriver from "../../src/drivers/AbstractDriver";
 
 dotEnv.config();
@@ -162,7 +162,7 @@ function runTestForMultipleDrivers(
                 generationOptions,
                 driver.defaultValues
             );
-            modelGenerationPhase(connectionOptions, generationOptions, dbModel);
+            GenerationPhase(connectionOptions, generationOptions, dbModel);
                     const filesGenPath = path.resolve(resultsPath, "entities");
             compareGeneratedFiles(filesOrgPathTS, filesGenPath);
             return {
@@ -239,7 +239,7 @@ async function runTest(
                 generationOptions,
                 driver.defaultValues
             );
-            modelGenerationPhase(connectionOptions, generationOptions, dbModel);
+            GenerationPhase(connectionOptions, generationOptions, dbModel);
             const filesGenPath = path.resolve(resultsPath, "entities");
             compareGeneratedFiles(filesOrgPathTS, filesGenPath);
             return {

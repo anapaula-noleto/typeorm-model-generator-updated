@@ -5,7 +5,7 @@ import * as chaiSubset from "chai-subset";
 import { Entity } from "../../src/models/Entity";
 import modelCustomizationPhase from "../../src/ModelCustomization";
 import { getDefaultGenerationOptions } from "../../src/IGenerationOptions";
-import modelGenerationPhase from "../../src/ModelGeneration";
+import GenerationPhase from "../../src/Generation";
 import { getDefaultConnectionOptions } from "../../src/IConnectionOptions";
 import { compileGeneratedModel } from "../integration/runTestsFromPath.test";
 
@@ -144,7 +144,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 {}
             );
-            modelGenerationPhase(
+            GenerationPhase(
                 getDefaultConnectionOptions(),
                 generationOptions,
                 customizedModel
@@ -166,7 +166,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 {}
             );
-            modelGenerationPhase(
+            GenerationPhase(
                 getDefaultConnectionOptions(),
                 generationOptions,
                 customizedModel
@@ -190,7 +190,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 {}
             );
-            modelGenerationPhase(
+            GenerationPhase(
                 getDefaultConnectionOptions(),
                 generationOptions,
                 customizedModel
@@ -218,7 +218,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 {}
             );
-            modelGenerationPhase(
+            GenerationPhase(
                 getDefaultConnectionOptions(),
                 generationOptions,
                 customizedModel
@@ -248,7 +248,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 {}
             );
-            modelGenerationPhase(
+            GenerationPhase(
                 getDefaultConnectionOptions(),
                 generationOptions,
                 customizedModel
@@ -277,7 +277,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 {}
             );
-            modelGenerationPhase(
+            GenerationPhase(
                 getDefaultConnectionOptions(),
                 generationOptions,
                 customizedModel
@@ -306,7 +306,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 {}
             );
-            modelGenerationPhase(
+            GenerationPhase(
                 getDefaultConnectionOptions(),
                 generationOptions,
                 customizedModel
@@ -336,7 +336,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 {}
             );
-            modelGenerationPhase(
+            GenerationPhase(
                 getDefaultConnectionOptions(),
                 generationOptions,
                 customizedModel
@@ -359,7 +359,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 {}
             );
-            modelGenerationPhase(
+            GenerationPhase(
                 getDefaultConnectionOptions(),
                 generationOptions,
                 customizedModel
@@ -384,7 +384,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 {}
             );
-            modelGenerationPhase(
+            GenerationPhase(
                 getDefaultConnectionOptions(),
                 generationOptions,
                 customizedModel
@@ -412,7 +412,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 {}
             );
-            modelGenerationPhase(
+            GenerationPhase(
                 getDefaultConnectionOptions(),
                 generationOptions,
                 customizedModel
@@ -442,7 +442,7 @@ describe("Model customization phase", async () => {
             generationOptions,
             {}
         );
-        modelGenerationPhase(
+        GenerationPhase(
             getDefaultConnectionOptions(),
             generationOptions,
             customizedModel
@@ -472,7 +472,7 @@ describe("Model customization phase", async () => {
             generationOptions,
             {}
         );
-        modelGenerationPhase(
+        GenerationPhase(
             getDefaultConnectionOptions(),
             generationOptions,
             customizedModel
@@ -504,7 +504,7 @@ describe("Model customization phase", async () => {
             generationOptions,
             {}
         );
-        modelGenerationPhase(
+        GenerationPhase(
             getDefaultConnectionOptions(),
             generationOptions,
             customizedModel
@@ -532,7 +532,7 @@ describe("Model customization phase", async () => {
             generationOptions,
             {}
         );
-        modelGenerationPhase(
+        GenerationPhase(
             getDefaultConnectionOptions(),
             generationOptions,
             customizedModel
@@ -565,7 +565,7 @@ describe("Model customization phase", async () => {
             generationOptions,
             {}
         );
-        modelGenerationPhase(
+        GenerationPhase(
             getDefaultConnectionOptions(),
             generationOptions,
             customizedModel
@@ -600,7 +600,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 {}
             );
-            modelGenerationPhase(
+            GenerationPhase(
                 getDefaultConnectionOptions(),
                 generationOptions,
                 customizedModel
@@ -633,7 +633,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 {}
             );
-            modelGenerationPhase(
+            GenerationPhase(
                 getDefaultConnectionOptions(),
                 generationOptions,
                 customizedModel
@@ -672,7 +672,7 @@ describe("Model customization phase", async () => {
             generationOptions,
             {}
         );
-        modelGenerationPhase(
+        GenerationPhase(
             getDefaultConnectionOptions(),
             generationOptions,
             customizedModel
@@ -712,7 +712,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 {}
             );
-            modelGenerationPhase(
+            GenerationPhase(
                 getDefaultConnectionOptions(),
                 generationOptions,
                 customizedModel
@@ -735,7 +735,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 {}
             );
-            modelGenerationPhase(
+            GenerationPhase(
                 getDefaultConnectionOptions(),
                 generationOptions,
                 customizedModel
@@ -760,7 +760,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 {}
             );
-            modelGenerationPhase(
+            GenerationPhase(
                 getDefaultConnectionOptions(),
                 generationOptions,
                 customizedModel
@@ -788,7 +788,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 {}
             );
-            modelGenerationPhase(
+            GenerationPhase(
                 getDefaultConnectionOptions(),
                 generationOptions,
                 customizedModel
@@ -815,7 +815,7 @@ describe("Model customization phase", async () => {
                 generationOptions,
                 {}
             );
-            modelGenerationPhase(
+            GenerationPhase(
                 getDefaultConnectionOptions(),
                 generationOptions,
                 customizedModel

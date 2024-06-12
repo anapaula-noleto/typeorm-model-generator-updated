@@ -11,4 +11,4 @@ coverage/
 dist
 *.tgz
 .tomg-config
-generated_models
+generated_models/

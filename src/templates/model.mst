@@ -1,0 +1,23 @@
+{{#*inline "Import"}}
+import { {{toEntityName entityName}} } from '{{getModelPath}}/{{toFileName fileName}}.js';
+{{/inline}}
+
+{{#*inline "Properties"}}
+{{toPropertyName tscName}}: {{tscType}};
+{{/inline}}
+
+{{#*inline "PropertiesFromRelations"}}
+{{toPropertyName fieldName}}: {{toEntityName fieldName}}{{#if (isRelationArray relationType)}}[]{{/if}};
+{{/inline}}
+
+{{#*inline "ModelClass"}}
+export class {{{toEntityName tscName}}} {
+    {{#columns}}{{> Properties}}{{/columns~}}
+    {{#relations}}{{> PropertiesFromRelations}}{{/relations}}
+}
+{{/inline}}
+
+import { Entity } from "typeorm";
+{{#fileImports}}{{> Import}}{{/fileImports}}
+
+{{> ModelClass}}

@@ -9,13 +9,14 @@ import IGenerationOptions, { eolConverter } from "./IGenerationOptions";
 import { Entity } from "./models/Entity";
 import { Relation } from "./models/Relation";
 import pluralize = require("pluralize");
+import { string } from "yargs";
 
 const prettierOptions: Prettier.Options = {
     parser: "typescript",
     endOfLine: "auto",
 };
 
-export default function modelGenerationPhase(
+export default function GenerationPhase(
     connectionOptions: IConnectionOptions,
     generationOptions: IGenerationOptions,
     databaseModel: Entity[]
@@ -30,25 +31,34 @@ export default function modelGenerationPhase(
     if (!fs.existsSync(resultPath)) {
         fs.mkdirSync(resultPath);
     }
-    let entitiesPath = resultPath;
+    let entitySchemasPath = resultPath;
     if (!generationOptions.noConfigs) {
         const tsconfigPath = path.resolve(resultPath, "tsconfig.json");
         const typeormConfigPath = path.resolve(resultPath, "ormconfig.json");
 
         createTsConfigFile(tsconfigPath);
         createTypeOrmConfig(typeormConfigPath, connectionOptions);
-        entitiesPath = path.resolve(resultPath, "./entities");
-        if (!fs.existsSync(entitiesPath)) {
-            fs.mkdirSync(entitiesPath);
+        entitySchemasPath = path.resolve(resultPath, "./entities");
+        if (!fs.existsSync(entitySchemasPath)) {
+            fs.mkdirSync(entitySchemasPath);
         }
     }
     if (generationOptions.indexFile) {
-        createIndexFile(databaseModel, generationOptions, entitiesPath);
+        createIndexFile(databaseModel, generationOptions, entitySchemasPath);
     }
-    generateModels(databaseModel, generationOptions, entitiesPath);
+
+    let modelsPath = path.resolve("./models");
+    if (!fs.existsSync(modelsPath)) {
+        fs.mkdirSync(modelsPath);
+    }
+
+    // console.log(databaseModel[0].relations)
+    // console.log(databaseModel[0].fileImports)
+    generateSchemas(databaseModel, generationOptions, entitySchemasPath);
+    generateModels(databaseModel, generationOptions, modelsPath);
 }
 
-function generateModels(
+function generateSchemas(
     databaseModel: Entity[],
     generationOptions: IGenerationOptions,
     entitiesPath: string
@@ -90,6 +100,67 @@ function generateModels(
             entitiesPath,
             `${casedFileName}.ts`
         );
+        const rendered = entityCompiledTemplate(element);
+
+        const withImportStatements = removeUnusedImports(
+            EOL !== eolConverter[generationOptions.convertEol]
+                ? rendered.replace(
+                      /(\r\n|\n|\r)/gm,
+                      eolConverter[generationOptions.convertEol]
+                  )
+                : rendered
+        );
+        let formatted = "";
+        try {
+            formatted = Prettier.format(withImportStatements, prettierOptions);
+        } catch (error) {
+            console.error(
+                "There were some problems with model generation for table: ",
+                element.sqlName
+            );
+            console.error(error);
+            formatted = withImportStatements;
+        }
+        fs.writeFileSync(resultFilePath, formatted, {
+            encoding: "utf-8",
+            flag: "w",
+        });
+    });
+}
+
+function generateModels(
+    databaseModel: Entity[],
+    generationOptions: IGenerationOptions,
+    modelsPath: string
+) {
+    const entityTemplatePath = path.resolve(
+        __dirname,
+        "templates",
+        "model.mst"
+    );
+    const entityTemplate = fs.readFileSync(entityTemplatePath, "utf-8");
+    const entityCompiledTemplate = Handlebars.compile(entityTemplate, {
+        noEscape: true,
+    });
+    databaseModel.forEach((element) => {
+        let casedFileName = "";
+        switch (generationOptions.convertCaseFile) {
+            case "camel":
+                casedFileName = changeCase.camelCase(element.fileName);
+                break;
+            case "param":
+                casedFileName = changeCase.paramCase(element.fileName);
+                break;
+            case "pascal":
+                casedFileName = changeCase.pascalCase(element.fileName);
+                break;
+            case "none":
+                casedFileName = element.fileName;
+                break;
+            default:
+                throw new Error("Unknown case style");
+        }
+        const resultFilePath = path.resolve(modelsPath, `${casedFileName}.ts`);
         const rendered = entityCompiledTemplate(element);
         const withImportStatements = removeUnusedImports(
             EOL !== eolConverter[generationOptions.convertEol]
@@ -165,7 +236,7 @@ function removeUnusedImports(rendered: string) {
         .filter((v) => v); // Remove any empty strings
 
     const restOfEntityDefinition = rendered.substring(closeBracketIndex);
-    const distinctImports = imports.filter(
+    let distinctImports = imports.filter(
         (v) =>
             restOfEntityDefinition.indexOf(`@${v}(`) !== -1 ||
             (v === "BaseEntity" && restOfEntityDefinition.indexOf(v) !== -1)
@@ -273,10 +344,9 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
     Handlebars.registerHelper("defaultExport", () =>
         generationOptions.exportType === "default" ? "default" : ""
     );
-    Handlebars.registerHelper("localImport", (entityName: string) =>
-        generationOptions.exportType === "default"
-            ? entityName
-            : `{${entityName}}`
+    Handlebars.registerHelper(
+        "localImport",
+        (entityName: string) => `{${entityName}}`
     );
     Handlebars.registerHelper("strictMode", () =>
         generationOptions.strictMode !== "none"
@@ -292,6 +362,9 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
         lte: (v1, v2) => v1 <= v2,
         ne: (v1, v2) => v1 !== v2,
         or: (v1, v2) => v1 || v2,
+    });
+    Handlebars.registerHelper("isRelationArray", (relationType) => {
+        return relationType === "ManyToMany" || relationType === "OneToMany";
     });
 }
 
