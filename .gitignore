@@ -11,4 +11,6 @@ coverage/
 dist
 *.tgz
 .tomg-config
-generated_models/
+models/
+entities/
+schemas/

@@ -8,6 +8,7 @@ import path = require("path");
 export default interface IGenerationOptions {
     schemasPath: string;
     modelsPath: string;
+    entitiesPath: string;
     pluralizeNames: boolean;
     noConfigs: boolean;
     convertCaseFile: "pascal" | "param" | "camel" | "none";
@@ -25,6 +26,10 @@ export default interface IGenerationOptions {
     indexFile: boolean;
     exportType: "named" | "default";
     generateMissingTables: boolean;
+    all: boolean;
+    genModels: boolean;
+    genEntities: boolean;
+    genSchemas: boolean;
 }
 
 export const eolConverter = {
@@ -34,8 +39,9 @@ export const eolConverter = {
 
 export function getDefaultGenerationOptions(): IGenerationOptions {
     const generationOptions: IGenerationOptions = {
-        schemasPath: path.resolve(process.cwd(), "output"),
+        schemasPath: path.resolve(process.cwd(), "schemas"),
         modelsPath: path.relative(process.cwd(), "models"),
+        entitiesPath: path.relative(process.cwd(), "entities"),
         pluralizeNames: true,
         noConfigs: false,
         convertCaseFile: "camel",
@@ -53,6 +59,10 @@ export function getDefaultGenerationOptions(): IGenerationOptions {
         indexFile: false,
         exportType: "named",
         generateMissingTables: false,
+        all: false,
+        genModels: false,
+        genEntities: false,
+        genSchemas: false,
     };
     return generationOptions;
 }

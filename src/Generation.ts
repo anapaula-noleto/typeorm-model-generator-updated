@@ -19,47 +19,32 @@ export default function GenerationPhase(
 
     const schemaPath = generationOptions.schemasPath;
     const modelPath = generationOptions.modelsPath;
-    if (!fs.existsSync(modelPath)) {
-        console.error(`ModelPath '${modelPath}' does not exist`);
-    }
-    if (!fs.existsSync(schemaPath)) {
-        fs.mkdirSync(schemaPath);
-    }
-    let entitySchemasPath = schemaPath;
+    const entityPath = generationOptions.entitiesPath;
+
     if (!generationOptions.noConfigs) {
-        const tsconfigPath = path.resolve(schemaPath, "tsconfig.json");
-        const typeormConfigPath = path.resolve(schemaPath, "ormconfig.json");
+        const tsconfigPath = path.resolve("tsconfig.json");
+        const typeormConfigPath = path.resolve("ormconfig.json");
 
         createTsConfigFile(tsconfigPath);
         createTypeOrmConfig(typeormConfigPath, connectionOptions);
-        entitySchemasPath = path.resolve(schemaPath, "./entities");
-        if (!fs.existsSync(entitySchemasPath)) {
-            fs.mkdirSync(entitySchemasPath);
-        }
     }
-    if (generationOptions.indexFile) {
-        createIndexFile(databaseModel, generationOptions, entitySchemasPath);
-    }
+    // if (generationOptions.indexFile) {
+    //     createIndexFile(databaseModel, generationOptions, entitySchemasPath);
+    // }
 
-    let modelsPath = path.resolve("./models");
-    if (!fs.existsSync(modelsPath)) {
-        fs.mkdirSync(modelsPath);
-    }
-
-    generateFile(
+    generateSelectedFiles(
         databaseModel,
         generationOptions,
-        entitySchemasPath,
-        "entity-schema.mst",
-        "schema"
+        entityPath,
+        modelPath,
+        schemaPath
     );
-    generateFile(databaseModel, generationOptions, modelsPath, "model.mst");
 }
 
 function generateFile(
     databaseModel: Entity[],
     generationOptions: IGenerationOptions,
-    modelsPath: string,
+    filePath: string,
     templateName: string,
     fileNameEndsWith?: string
 ) {
@@ -74,7 +59,16 @@ function generateFile(
             ? `${element.fileName}-${fileNameEndsWith}`
             : element.fileName;
         const casedFileName = setFileNameWithCase(generationOptions, fileName);
-        const resultFilePath = path.resolve(modelsPath, `${casedFileName}.ts`);
+
+        const relativeFilePath = path.resolve(filePath);
+        if (!fs.existsSync(relativeFilePath)) {
+            fs.mkdirSync(relativeFilePath);
+        }
+
+        const resultFilePath = path.resolve(
+            relativeFilePath,
+            `${casedFileName}.ts`
+        );
 
         if (
             generationOptions.generateMissingTables &&
@@ -120,6 +114,66 @@ function setFileNameWithCase(
             throw new Error("Unknown case style");
     }
     return casedFileName;
+}
+
+function generateSelectedFiles(
+    databaseModel: Entity[],
+    generationOptions: IGenerationOptions,
+    entitiesPath: string,
+    modelsPath: string,
+    entitySchemasPath: string
+) {
+    if (generationOptions.all) {
+        generateFile(
+            databaseModel,
+            generationOptions,
+            entitySchemasPath,
+            "entity-schema.mst",
+            "schema"
+        );
+        generateFile(databaseModel, generationOptions, modelsPath, "model.mst");
+        generateFile(
+            databaseModel,
+            generationOptions,
+            entitiesPath,
+            "entity.mst"
+        );
+    } else {
+        if (generationOptions.genEntities) {
+            generateFile(
+                databaseModel,
+                generationOptions,
+                entitiesPath,
+                "entity.mst"
+            );
+        }
+        if (generationOptions.genModels) {
+            generateFile(
+                databaseModel,
+                generationOptions,
+                modelsPath,
+                "model.mst"
+            );
+        }
+        if (generationOptions.genSchemas) {
+            generateFile(
+                databaseModel,
+                generationOptions,
+                entitySchemasPath,
+                "entity-schema.mst",
+                "schema"
+            );
+        }
+        if (
+            !generationOptions.genEntities &&
+            !generationOptions.genModels &&
+            !generationOptions.genSchemas
+        ) {
+            console.error(
+                "Nothing set to generate. Please use --all or --genEntities or --genModels or --genSchemas"
+            );
+        }
+    }
 }
 
 function fileAlreadyCreated(filePath: string) {

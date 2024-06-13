@@ -40,9 +40,6 @@ async function CliLogic() {
         options.connectionOptions,
         options.generationOptions
     );
-    console.info(
-        `[${new Date().toLocaleTimeString()}] Typeorm schema classes created.`
-    );
 }
 function validateConfig(options: options): options {
     if (
@@ -182,12 +179,6 @@ function checkYargsParameters(options: options): options {
             default: options.generationOptions.schemasPath,
             describe: "Where to place generated models",
         },
-        m: {
-            alias: "model",
-            default: options.generationOptions.modelsPath,
-            describe:
-                "Where to place search for models to use in entyty schema",
-        },
         s: {
             alias: "schema",
             string: true,
@@ -309,6 +300,42 @@ function checkYargsParameters(options: options): options {
             default: options.generationOptions.generateMissingTables,
             describe: "Generate models for missing tables only",
         },
+        schemasPath: {
+            string: true,
+            default: options.generationOptions.schemasPath,
+            describe: "Where to place generated schemas",
+        },
+        entitiesPath: {
+            string: true,
+            default: options.generationOptions.entitiesPath,
+            describe: "Where to place generated entities",
+        },
+        modelsPath: {
+            string: true,
+            default: options.generationOptions.modelsPath,
+            describe:
+                "Where to place models or search for models to use in entity schema",
+        },
+        all: {
+            boolean: true,
+            default: false,
+            describe: "Generate everything",
+        },
+        genEntities: {
+            boolean: true,
+            default: false,
+            describe: "Generate entities",
+        },
+        genSchemas: {
+            boolean: true,
+            default: false,
+            describe: "Generate schemas",
+        },
+        genModels: {
+            boolean: true,
+            default: false,
+            describe: "Generate models",
+        },
     });
 
     options.connectionOptions.databaseNames = argv.d.split(",");
@@ -355,8 +382,13 @@ function checkYargsParameters(options: options): options {
     options.generationOptions.skipSchema = argv.skipSchema;
     options.generationOptions.generateMissingTables =
         argv.generateMissingTables;
-    options.generationOptions.schemasPath = argv.o;
-    options.generationOptions.modelsPath = argv.m;
+    options.generationOptions.schemasPath = argv.schemasPath;
+    options.generationOptions.modelsPath = argv.modelsPath;
+    options.generationOptions.entitiesPath = argv.entitiesPath;
+    options.generationOptions.all = argv.all;
+    options.generationOptions.genEntities = argv.genEntities;
+    options.generationOptions.genSchemas = argv.genSchemas;
+    options.generationOptions.genModels = argv.genModels;
     options.generationOptions.pluralizeNames = !argv.disablePluralization;
     options.generationOptions.strictMode =
         argv.strictMode as IGenerationOptions["strictMode"];
