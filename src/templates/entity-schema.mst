@@ -20,6 +20,13 @@ export const {{toPropertyName tscName}}Schema = new EntitySchema<{{> EntitySchem
     tableName: "{{sqlName}}",
     columns: {
         {{#columns}}{{> Column}}{{/columns~}}
+        {{#relations}} {{#if (isManyToOne relationType)}} 
+          {{toPropertyName fieldName}}Id: {
+            type: Number,
+            name: "{{toPropertyName fieldName}}_id",
+            {{#nullable}}nullable: true,{{/nullable}}
+          },
+        {{/if}}{{/relations}}
     },
     relations: {
         {{#relations}}
