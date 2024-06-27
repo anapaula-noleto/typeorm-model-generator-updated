@@ -41,7 +41,7 @@ export default function GenerationPhase(
     );
 }
 
-function generateFile(
+function generateFileFromDatabase(
     databaseModel: Entity[],
     generationOptions: IGenerationOptions,
     filePath: string,
@@ -92,6 +92,50 @@ function generateFile(
     });
 }
 
+function generateFile(
+    generationOptions: IGenerationOptions,
+    filePath: string,
+    templateName: string,
+    fileName: string
+) {
+    const templatePath = path.resolve(__dirname, "templates", templateName);
+    const template = fs.readFileSync(templatePath, "utf-8");
+    const compiledTemplate = Handlebars.compile(template, {
+        noEscape: true,
+    });
+
+    const casedFileName = setFileNameWithCase(generationOptions, fileName);
+
+    const relativeFilePath = path.resolve(filePath);
+    if (!fs.existsSync(relativeFilePath)) {
+        fs.mkdirSync(relativeFilePath);
+    }
+
+    const resultFilePath = path.resolve(
+        relativeFilePath,
+        `${casedFileName}.ts`
+    );
+
+    if (
+        generationOptions.generateMissingTables &&
+        fileAlreadyCreated(resultFilePath)
+    ) {
+        return;
+    }
+
+    const renderedText = compiledTemplate({});
+
+    const finalFileText = new FileProcessor(renderedText, generationOptions)
+        .convertEOL()
+        .prettierFormat()
+        .getRenderedFile();
+
+    fs.writeFileSync(resultFilePath, finalFileText, {
+        encoding: "utf-8",
+        flag: "w",
+    });
+}
+
 function setFileNameWithCase(
     generationOptions: IGenerationOptions,
     fileName: string
@@ -124,23 +168,35 @@ function generateSelectedFiles(
     entitySchemasPath: string
 ) {
     if (generationOptions.all) {
-        generateFile(
+        generateFileFromDatabase(
             databaseModel,
             generationOptions,
             entitySchemasPath,
             "entity-schema.mst",
             "schema"
         );
-        generateFile(databaseModel, generationOptions, modelsPath, "model.mst");
-        generateFile(
+        generateFileFromDatabase(
+            databaseModel,
+            generationOptions,
+            modelsPath,
+            "model.mst"
+        );
+        generateFileFromDatabase(
             databaseModel,
             generationOptions,
             entitiesPath,
             "entity.mst"
         );
+        generateRepositoryFiles(
+            databaseModel,
+            generationOptions,
+            "ports",
+            "typeorm",
+            "dtos"
+        );
     } else {
         if (generationOptions.genEntities) {
-            generateFile(
+            generateFileFromDatabase(
                 databaseModel,
                 generationOptions,
                 entitiesPath,
@@ -148,7 +204,7 @@ function generateSelectedFiles(
             );
         }
         if (generationOptions.genModels) {
-            generateFile(
+            generateFileFromDatabase(
                 databaseModel,
                 generationOptions,
                 modelsPath,
@@ -156,7 +212,7 @@ function generateSelectedFiles(
             );
         }
         if (generationOptions.genSchemas) {
-            generateFile(
+            generateFileFromDatabase(
                 databaseModel,
                 generationOptions,
                 entitySchemasPath,
@@ -164,10 +220,20 @@ function generateSelectedFiles(
                 "schema"
             );
         }
+        if (generationOptions.genRepositories) {
+            generateRepositoryFiles(
+                databaseModel,
+                generationOptions,
+                "ports",
+                "typeorm",
+                "dtos"
+            );
+        }
         if (
             !generationOptions.genEntities &&
             !generationOptions.genModels &&
-            !generationOptions.genSchemas
+            !generationOptions.genSchemas &&
+            !generationOptions.genRepositories
         ) {
             console.error(
                 "Nothing set to generate. Please use --all or --genEntities or --genModels or --genSchemas"
@@ -232,8 +298,26 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
     Handlebars.registerHelper("toLowerCase", (str) => {
         return str.toLowerCase();
     });
-    Handlebars.registerHelper("getModelPath", () => {
-        return generationOptions.modelsPath;
+    Handlebars.registerHelper("getFilePath", (str) => {
+        if (str === "entity") {
+            return generationOptions.entitiesPath;
+        }
+        if (str === "models") {
+            return generationOptions.modelsPath;
+        }
+        if (str === "schema") {
+            return generationOptions.schemasPath;
+        }
+        if (str === "repository-adapter") {
+            return "typeorm";
+        }
+        if (str === "dtos") {
+            return "dtos";
+        }
+        if (str === "repository-port") {
+            return "ports";
+        }
+        return "";
     });
     Handlebars.registerHelper("toEntityName", (str) => {
         str = pluralize.singular(str);
@@ -254,7 +338,7 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
         return retStr;
     });
     Handlebars.registerHelper("toFileName", (str) => {
-        return pluralize.singular(changeCase.camelCase(str));
+        return changeCase.camelCase(str);
     });
     Handlebars.registerHelper("printPropertyVisibility", () =>
         generationOptions.propertyVisibility !== "none"
@@ -325,6 +409,9 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
     Handlebars.registerHelper("isRelationArray", (relationType) => {
         return relationType === "ManyToMany" || relationType === "OneToMany";
     });
+    Handlebars.registerHelper("isManyToOne", (relationType) => {
+        return relationType === "ManyToOne";
+    });
 }
 
 function createTsConfigFile(tsconfigPath: string): void {
@@ -346,6 +433,7 @@ function createTsConfigFile(tsconfigPath: string): void {
         flag: "w",
     });
 }
+
 function createTypeOrmConfig(
     typeormConfigPath: string,
     connectionOptions: IConnectionOptions
@@ -367,4 +455,43 @@ function createTypeOrmConfig(
         encoding: "utf-8",
         flag: "w",
     });
+}
+
+function generateRepositoryFiles(
+    databaseModel: Entity[],
+    generationOptions: IGenerationOptions,
+    repoPortPath: string,
+    repoAdapterPath: string,
+    repoDtoPath: string
+) {
+    generateFile(
+        generationOptions,
+        repoPortPath,
+        "base-repository-typeorm-port.mst",
+        "repository"
+    );
+    generateFile(
+        generationOptions,
+        repoDtoPath,
+        "base-repository-types.mst",
+        "generic"
+    );
+    generateFileFromDatabase(
+        databaseModel,
+        generationOptions,
+        repoPortPath,
+        "repository-port.mst"
+    );
+    generateFile(
+        generationOptions,
+        repoAdapterPath,
+        "base-repository-typeorm-adapter.mst",
+        "typeORMRepository"
+    );
+    generateFileFromDatabase(
+        databaseModel,
+        generationOptions,
+        repoAdapterPath,
+        "repository-adapter.mst"
+    );
 }

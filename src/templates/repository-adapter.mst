@@ -1,0 +1,10 @@
+import { } from "typeorm";
+import { In, Repository } from "typeorm";
+import { TypeORMRepository } from "./typeORMRepository.js";
+import { {{toEntityName tscName}}Repository } from "{{getFilePath "models"}}/{{entityName}}.js"
+
+export class TypeORM{{toEntityName tscName}}Repository extends TypeORMRepository<{{toEntityName tscName}}> implements {{toEntityName tscName}}Repository {
+    constructor(repository: Repository<{{toEntityName tscName}}>) {
+        super(repository);
+    }
+}

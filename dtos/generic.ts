@@ -1,0 +1,22 @@
+export type FindConditions<T> = Partial<T>;
+export enum OrderDirection {
+  ASC = "ASC",
+  DESC = "DESC",
+}
+export type PaginatedFindConditions<T> = {
+  page?: number;
+  itemsPerPage?: number;
+  conditions?: FindConditions<T>;
+  orderBy?: keyof T;
+  orderDirection?: OrderDirection;
+};
+export type FilterOrganizationOptions = {
+  currentUserOrganizationId: number;
+  featuresIds: number[];
+  desiredFeature: number;
+};
+export type Page<T> = {
+  page: number;
+  totalRows: number;
+  rows: T[];
+};

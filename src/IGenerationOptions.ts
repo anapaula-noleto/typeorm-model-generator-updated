@@ -30,6 +30,7 @@ export default interface IGenerationOptions {
     genModels: boolean;
     genEntities: boolean;
     genSchemas: boolean;
+    genRepositories: boolean;
 }
 
 export const eolConverter = {
@@ -63,6 +64,7 @@ export function getDefaultGenerationOptions(): IGenerationOptions {
         genModels: false,
         genEntities: false,
         genSchemas: false,
+        genRepositories: false,
     };
     return generationOptions;
 }

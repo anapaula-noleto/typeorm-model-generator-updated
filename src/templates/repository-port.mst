@@ -1,0 +1,6 @@
+import { } from "typeorm";
+import { {{toEntityName tscName}} } from "{{getFilePath "models"}}/{{toFileName tscName}}.js";
+import { Repository } from "./repository.js";
+
+
+export interface {{toEntityName tscName}}Repository extends Repository<{{toEntityName tscName}}> {}

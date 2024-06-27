@@ -32,9 +32,7 @@ async function CliLogic() {
     }
     options = validateConfig(options);
     const driver = createDriver(options.connectionOptions.databaseType);
-    console.log(
-        `[${new Date().toLocaleTimeString()}] Starting creation of entity schema classes.`
-    );
+    console.log(`[${new Date().toLocaleTimeString()}] Starting file creation.`);
     await createModelFromDatabase(
         driver,
         options.connectionOptions,
@@ -336,6 +334,11 @@ function checkYargsParameters(options: options): options {
             default: false,
             describe: "Generate models",
         },
+        genRepositories: {
+            boolean: true,
+            default: false,
+            describe: "Generate repositories",
+        },
     });
 
     options.connectionOptions.databaseNames = argv.d.split(",");
@@ -389,6 +392,7 @@ function checkYargsParameters(options: options): options {
     options.generationOptions.genEntities = argv.genEntities;
     options.generationOptions.genSchemas = argv.genSchemas;
     options.generationOptions.genModels = argv.genModels;
+    options.generationOptions.genRepositories = argv.genRepositories;
     options.generationOptions.pluralizeNames = !argv.disablePluralization;
     options.generationOptions.strictMode =
         argv.strictMode as IGenerationOptions["strictMode"];
