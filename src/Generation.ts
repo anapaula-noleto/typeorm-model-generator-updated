@@ -56,9 +56,14 @@ function generateFileFromDatabase(
     });
 
     databaseModel.forEach((element) => {
-        let fileName = fileNameEndsWith
-            ? `${element.fileName}-${fileNameEndsWith}`
-            : element.fileName;
+        let fileName = setFileNamePlurality(
+            generationOptions,
+            element.fileName
+        );
+
+        fileName = fileNameEndsWith
+            ? `${fileName}-${fileNameEndsWith}`
+            : fileName;
 
         fileName = fileNameBeginsWith
             ? `${fileNameBeginsWith}-${fileName}`
@@ -162,6 +167,19 @@ function setFileNameWithCase(
             break;
         default:
             throw new Error("Unknown case style");
+    }
+    return casedFileName;
+}
+
+function setFileNamePlurality(
+    generationOptions: IGenerationOptions,
+    fileName: string
+): string {
+    let casedFileName = "";
+    if (generationOptions.pluralizeNames) {
+        casedFileName = pluralize.plural(fileName);
+    } else {
+        casedFileName = pluralize.singular(fileName);
     }
     return casedFileName;
 }
@@ -476,6 +494,8 @@ function generateRepositoryFiles(
     repoAdapterPath: string,
     repoDtoPath: string
 ) {
+    console.log("Generating repository files");
+    console.log(generationOptions.pluralizeNames, "pluralizeNames");
     generateFile(
         generationOptions,
         repoPortPath,
