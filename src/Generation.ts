@@ -8,7 +8,7 @@ import IGenerationOptions from "./IGenerationOptions";
 import { Entity } from "./models/Entity";
 import { Relation } from "./models/Relation";
 import pluralize = require("pluralize");
-import { FileProcessor } from "../test/utils/FileProcessor";
+import { FileProcessor } from "./utils/FileProcessor";
 
 export default function GenerationPhase(
     connectionOptions: IConnectionOptions,

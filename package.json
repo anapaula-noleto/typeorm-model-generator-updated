@@ -1,6 +1,6 @@
 {
   "name": "typeorm-model-generator-updated",
-  "version": "0.5.3",
+  "version": "0.5.46",
   "description": "Generates entity schemas for TypeORM from existing databases.",
   "bin": "bin/typeorm-model-generator",
   "main": "./dist/src/library.js",
