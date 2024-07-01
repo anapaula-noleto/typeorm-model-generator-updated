@@ -46,7 +46,8 @@ function generateFileFromDatabase(
     generationOptions: IGenerationOptions,
     filePath: string,
     templateName: string,
-    fileNameEndsWith?: string
+    fileNameEndsWith?: string,
+    fileNameBeginsWith?: string
 ) {
     const templatePath = path.resolve(__dirname, "templates", templateName);
     const template = fs.readFileSync(templatePath, "utf-8");
@@ -55,9 +56,14 @@ function generateFileFromDatabase(
     });
 
     databaseModel.forEach((element) => {
-        const fileName = fileNameEndsWith
+        let fileName = fileNameEndsWith
             ? `${element.fileName}-${fileNameEndsWith}`
             : element.fileName;
+
+        fileName = fileNameBeginsWith
+            ? `${fileNameBeginsWith}-${fileName}`
+            : fileName;
+
         const casedFileName = setFileNameWithCase(generationOptions, fileName);
 
         const relativeFilePath = path.resolve(filePath);
@@ -190,9 +196,9 @@ function generateSelectedFiles(
         generateRepositoryFiles(
             databaseModel,
             generationOptions,
-            "ports",
-            "typeorm",
-            "dtos"
+            generationOptions.repositoriesPortsPath,
+            generationOptions.repositoriesAdaptersPath,
+            generationOptions.dtosPath
         );
     } else {
         if (generationOptions.genEntities) {
@@ -224,9 +230,9 @@ function generateSelectedFiles(
             generateRepositoryFiles(
                 databaseModel,
                 generationOptions,
-                "ports",
-                "typeorm",
-                "dtos"
+                generationOptions.repositoriesPortsPath,
+                generationOptions.repositoriesAdaptersPath,
+                generationOptions.dtosPath
             );
         }
         if (
@@ -236,7 +242,7 @@ function generateSelectedFiles(
             !generationOptions.genRepositories
         ) {
             console.error(
-                "Nothing set to generate. Please use --all or --genEntities or --genModels or --genSchemas"
+                "Nothing set to generate. Please use --all, --genEntities, --genModels, --genRepositories or --genSchemas"
             );
         }
     }
@@ -309,15 +315,21 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
             return generationOptions.schemasPath;
         }
         if (str === "repository-adapter") {
-            return "typeorm";
+            return generationOptions.repositoriesAdaptersPath;
         }
         if (str === "dtos") {
-            return "dtos";
+            return generationOptions.dtosPath;
         }
         if (str === "repository-port") {
-            return "ports";
+            return generationOptions.repositoriesPortsPath;
         }
         return "";
+    });
+    Handlebars.registerHelper("getRelativePath", (fromFilePath, toFilePath) => {
+        if (fromFilePath == toFilePath) {
+            return `./`;
+        }
+        return `${path.relative(fromFilePath, toFilePath)}/`;
     });
     Handlebars.registerHelper("toEntityName", (str) => {
         str = pluralize.singular(str);
@@ -480,7 +492,8 @@ function generateRepositoryFiles(
         databaseModel,
         generationOptions,
         repoPortPath,
-        "repository-port.mst"
+        "repository-port.mst",
+        "repository"
     );
     generateFile(
         generationOptions,
@@ -492,6 +505,8 @@ function generateRepositoryFiles(
         databaseModel,
         generationOptions,
         repoAdapterPath,
-        "repository-adapter.mst"
+        "repository-adapter.mst",
+        "repository",
+        "typeORM"
     );
 }

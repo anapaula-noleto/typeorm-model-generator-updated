@@ -1,11 +1,11 @@
-import { Repository } from "../{{getFilePath "repository-port"}}/repository.js";
+import { Repository } from "{{getRelativePath (getFilePath "repository-adapter") (getFilePath "repository-port")}}repository.js";
 import {
   FindConditions,
   OrderDirection,
   Page,
   PaginatedFindConditions,
   FilterOrganizationOptions,
-} from "../{{getFilePath "dtos"}}/generic.js";
+} from "{{getRelativePath (getFilePath "repository-adapter") (getFilePath "dtos")}}/generic.js";
 import { Repository as BaseRepository } from "typeorm";
 import { FindOptionsWhere } from "typeorm/find-options/FindOptionsWhere.js";
 

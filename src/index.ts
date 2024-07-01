@@ -311,8 +311,22 @@ function checkYargsParameters(options: options): options {
         modelsPath: {
             string: true,
             default: options.generationOptions.modelsPath,
-            describe:
-                "Where to place models or search for models to use in entity schema",
+            describe: "Where to place models or search for models",
+        },
+        repoPortsPath: {
+            string: true,
+            default: options.generationOptions.repositoriesPortsPath,
+            describe: "Where to place models or search for repositories ports",
+        },
+        repoAdaptersPath: {
+            string: true,
+            default: options.generationOptions.repositoriesAdaptersPath,
+            describe: "Where to place models or search for repositories ports",
+        },
+        dtosPath: {
+            string: true,
+            default: options.generationOptions.dtosPath,
+            describe: "Where to place dtos",
         },
         all: {
             boolean: true,
@@ -388,7 +402,11 @@ function checkYargsParameters(options: options): options {
     options.generationOptions.schemasPath = argv.schemasPath;
     options.generationOptions.modelsPath = argv.modelsPath;
     options.generationOptions.entitiesPath = argv.entitiesPath;
-    options.generationOptions.all = argv.all;
+    (options.generationOptions.repositoriesAdaptersPath =
+        argv.repoAdaptersPath),
+        (options.generationOptions.repositoriesPortsPath = argv.repoPortsPath),
+        (options.generationOptions.dtosPath = argv.dtosPath),
+        (options.generationOptions.all = argv.all);
     options.generationOptions.genEntities = argv.genEntities;
     options.generationOptions.genSchemas = argv.genSchemas;
     options.generationOptions.genModels = argv.genModels;

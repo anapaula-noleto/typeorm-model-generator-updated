@@ -1,7 +1,8 @@
 import { } from "typeorm";
-import { In, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { TypeORMRepository } from "./typeORMRepository.js";
-import { {{toEntityName tscName}}Repository } from "{{getFilePath "models"}}/{{entityName}}.js"
+import { {{toEntityName tscName}} } from "{{getRelativePath (getFilePath "repository-adapter") (getFilePath "models")}}{{singularize (toFileName tscName)}}.js"
+import { {{toEntityName tscName}}Repository } from "{{getRelativePath (getFilePath "repository-adapter") (getFilePath "repository-port")}}{{toFileName tscName}}Repository.js"
 
 export class TypeORM{{toEntityName tscName}}Repository extends TypeORMRepository<{{toEntityName tscName}}> implements {{toEntityName tscName}}Repository {
     constructor(repository: Repository<{{toEntityName tscName}}>) {

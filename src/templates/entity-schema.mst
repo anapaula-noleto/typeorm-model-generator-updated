@@ -1,5 +1,5 @@
 {{#*inline "Import"}}
-import {{localImport (toEntityName entityName)}} from '{{getFilePath "models"}}/{{toFileName entityName}}.js'
+import {{localImport (toEntityName entityName)}} from '{{getRelativePath (getFilePath "schema") (getFilePath "models")}}{{singularize (toFileName entityName)}}.js'
 {{/inline}}
 {{#*inline "Column"}}
 {{toPropertyName tscName}}: {
@@ -44,6 +44,6 @@ export const {{toPropertyName tscName}}Schema = new EntitySchema<{{> EntitySchem
 {{/inline}}
 import { Entity } from "typeorm";
 import { EntitySchema } from "typeorm";
-import { {{toEntityName tscName}} } from "{{getFilePath "models"}}/{{toFileName tscName}}.js";
+import { {{toEntityName tscName}} } from "{{getRelativePath (getFilePath "models") (getFilePath "models")}}{{toFileName tscName}}.js";
 {{#fileImports}}{{> Import}}{{/fileImports}}
 {{> Schema}}

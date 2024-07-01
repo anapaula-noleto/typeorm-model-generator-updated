@@ -9,6 +9,9 @@ export default interface IGenerationOptions {
     schemasPath: string;
     modelsPath: string;
     entitiesPath: string;
+    repositoriesPortsPath: string;
+    repositoriesAdaptersPath: string;
+    dtosPath: string;
     pluralizeNames: boolean;
     noConfigs: boolean;
     convertCaseFile: "pascal" | "param" | "camel" | "none";
@@ -43,6 +46,9 @@ export function getDefaultGenerationOptions(): IGenerationOptions {
         schemasPath: path.resolve(process.cwd(), "schemas"),
         modelsPath: path.relative(process.cwd(), "models"),
         entitiesPath: path.relative(process.cwd(), "entities"),
+        repositoriesAdaptersPath: path.relative(process.cwd(), "adapters"),
+        repositoriesPortsPath: path.relative(process.cwd(), "adapters"),
+        dtosPath: path.relative(process.cwd(), "dtos"),
         pluralizeNames: true,
         noConfigs: false,
         convertCaseFile: "camel",

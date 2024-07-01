@@ -1,4 +1,4 @@
-import { FilterOrganizationOptions, FindConditions, Page, PaginatedFindConditions } from "../dtos/generic.js";
+import { FilterOrganizationOptions, FindConditions, Page, PaginatedFindConditions } from "{{getRelativePath (getFilePath "repository-port") (getFilePath "dtos")}}generic.js";
 
 export interface Repository<T> {
   insert(entity: T): Promise<T>

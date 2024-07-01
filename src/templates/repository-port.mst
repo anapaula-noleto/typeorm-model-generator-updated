@@ -1,5 +1,5 @@
 import { } from "typeorm";
-import { {{toEntityName tscName}} } from "{{getFilePath "models"}}/{{toFileName tscName}}.js";
+import { {{toEntityName tscName}} } from "{{getRelativePath (getFilePath "repository-port") (getFilePath "models")}}{{singularize (toFileName tscName)}}.js";
 import { Repository } from "./repository.js";
 
 

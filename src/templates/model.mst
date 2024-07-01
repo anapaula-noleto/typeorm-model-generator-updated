@@ -1,5 +1,5 @@
 {{#*inline "Import"}}
-import { {{toEntityName entityName}} } from '{{getFilePath "models"}}/{{toFileName entityName}}.js';
+import { {{toEntityName entityName}} } from '{{getRelativePath (getFilePath "models") (getFilePath "models")}}{{toFileName entityName}}.js';
 {{/inline}}
 
 {{#*inline "Properties"}}
