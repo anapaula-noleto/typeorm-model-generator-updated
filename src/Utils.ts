@@ -1,7 +1,7 @@
-import * as changeCase from "change-case";
 import * as path from "path";
 import * as packagejson from "../package.json";
 import { Entity } from "./models/Entity";
+import { Inflector } from "./utils/Inflector";
 
 export function LogError(
     errText: string,
@@ -34,22 +34,22 @@ export function findNameForNewField(
     const validNameCondition = () =>
         (entity.columns.every(
             (v) =>
-                changeCase.camelCase(v.tscName) !==
-                changeCase.camelCase(fieldName)
+                Inflector.camelCase(v.tscName) !==
+                Inflector.camelCase(fieldName)
         ) &&
             entity.relations.every(
                 (v) =>
-                    changeCase.camelCase(v.fieldName) !==
-                    changeCase.camelCase(fieldName)
+                    Inflector.camelCase(v.fieldName) !==
+                    Inflector.camelCase(fieldName)
             ) &&
             entity.relationIds.every(
                 (v) =>
-                    changeCase.camelCase(v.fieldName) !==
-                    changeCase.camelCase(fieldName)
+                    Inflector.camelCase(v.fieldName) !==
+                    Inflector.camelCase(fieldName)
             )) ||
         (columnOldName &&
-            changeCase.camelCase(columnOldName) ===
-                changeCase.camelCase(fieldName));
+            Inflector.camelCase(columnOldName) ===
+                Inflector.camelCase(fieldName));
     if (!validNameCondition()) {
         fieldName += "_";
         for (

@@ -1,14 +1,13 @@
 import * as Handlebars from "handlebars";
 import * as Prettier from "prettier";
-import * as changeCase from "change-case";
 import * as fs from "fs";
 import * as path from "path";
 import IConnectionOptions from "./IConnectionOptions";
 import IGenerationOptions from "./IGenerationOptions";
 import { Entity } from "./models/Entity";
 import { Relation } from "./models/Relation";
-import pluralize = require("pluralize");
 import { FileProcessor } from "./utils/FileProcessor";
+import { Inflector } from "./utils/Inflector";
 
 export default function GenerationPhase(
     connectionOptions: IConnectionOptions,
@@ -154,13 +153,13 @@ function setFileNameWithCase(
     let casedFileName = "";
     switch (generationOptions.convertCaseFile) {
         case "camel":
-            casedFileName = changeCase.camelCase(fileName);
+            casedFileName = Inflector.camelCase(fileName);
             break;
         case "param":
-            casedFileName = changeCase.paramCase(fileName);
+            casedFileName = Inflector.kebabCase(fileName);
             break;
         case "pascal":
-            casedFileName = changeCase.pascalCase(fileName);
+            casedFileName = Inflector.pascalCase(fileName);
             break;
         case "none":
             casedFileName = fileName;
@@ -177,9 +176,9 @@ function setFileNamePlurality(
 ): string {
     let casedFileName = "";
     if (generationOptions.pluralizeNames) {
-        casedFileName = pluralize.plural(fileName);
+        casedFileName = Inflector.pluralize(fileName);
     } else {
-        casedFileName = pluralize.singular(fileName);
+        casedFileName = Inflector.singularize(fileName);
     }
     return casedFileName;
 }
@@ -287,13 +286,13 @@ function createIndexFile(
     let fileName = "index";
     switch (generationOptions.convertCaseFile) {
         case "camel":
-            fileName = changeCase.camelCase(fileName);
+            fileName = Inflector.camelCase(fileName);
             break;
         case "param":
-            fileName = changeCase.paramCase(fileName);
+            fileName = Inflector.kebabCase(fileName);
             break;
         case "pascal":
-            fileName = changeCase.pascalCase(fileName);
+            fileName = Inflector.pascalCase(fileName);
             break;
         default:
     }
@@ -314,10 +313,10 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
         return JSON.stringify(context);
     });
     Handlebars.registerHelper("toparamCase", (str) => {
-        return changeCase.paramCase(str);
+        return Inflector.kebabCase(str);
     });
     Handlebars.registerHelper("singularize", (str) => {
-        return pluralize.singular(str);
+        return Inflector.singularize(str);
     });
     Handlebars.registerHelper("toLowerCase", (str) => {
         return str.toLowerCase();
@@ -350,14 +349,14 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
         return `${path.relative(fromFilePath, toFilePath)}/`;
     });
     Handlebars.registerHelper("toEntityName", (str) => {
-        str = pluralize.singular(str);
+        str = Inflector.singularize(str);
         let retStr = "";
         switch (generationOptions.convertCaseEntity) {
             case "camel":
-                retStr = changeCase.camelCase(str);
+                retStr = Inflector.camelCase(str);
                 break;
             case "pascal":
-                retStr = changeCase.pascalCase(str);
+                retStr = Inflector.pascalCase(str);
                 break;
             case "none":
                 retStr = str;
@@ -368,7 +367,7 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
         return retStr;
     });
     Handlebars.registerHelper("toFileName", (str) => {
-        return changeCase.camelCase(str);
+        return Inflector.camelCase(str);
     });
     Handlebars.registerHelper("printPropertyVisibility", () =>
         generationOptions.propertyVisibility !== "none"
@@ -385,16 +384,16 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions): void {
         let retStr = "";
         switch (generationOptions.convertCaseProperty) {
             case "camel":
-                retStr = changeCase.camelCase(str);
+                retStr = Inflector.camelCase(str);
                 break;
             case "pascal":
-                retStr = changeCase.pascalCase(str);
+                retStr = Inflector.pascalCase(str);
                 break;
             case "none":
                 retStr = str;
                 break;
             case "snake":
-                retStr = changeCase.snakeCase(str);
+                retStr = Inflector.snakeCase(str);
                 break;
             default:
                 throw new Error("Unknown case style");
